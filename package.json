@@ -32,6 +32,7 @@
     "gzip-size": "3.0.0",
     "html-webpack-plugin": "2.24.0",
     "http-proxy-middleware": "0.17.2",
+    "ipfs-api": "^23.0.0",
     "jest": "17.0.2",
     "json-loader": "0.5.4",
     "object-assign": "4.1.0",
@@ -39,6 +40,7 @@
     "path-exists": "2.1.0",
     "postcss-loader": "1.0.0",
     "promise": "7.1.1",
+    "react-date-range": "^1.0.0-beta",
     "react-dev-utils": "^0.4.2",
     "recursive-readdir": "2.1.0",
     "strip-ansi": "3.0.1",
@@ -52,9 +54,10 @@
     "whatwg-fetch": "1.0.0"
   },
   "dependencies": {
+    "@material-ui/core": "^1.4.3",
     "eth-block-tracker-es5": "^2.3.2",
-    "react": "^15.4.2",
-    "react-dom": "^15.4.2",
+    "react": "^16.4.2",
+    "react-dom": "^16.4.2",
     "react-redux": "^5.0.2",
     "react-router": "^3.2.1",
     "react-router-redux": "^4.0.7",

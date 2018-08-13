@@ -23,9 +23,8 @@ contract Blockspace {
     }
 
     struct Space {
-        int lat;
-        int long;
         uint id;
+        string dataHash;
         bool active;
         mapping(uint16 => Reservation) reservations;
         mapping(uint16 => bool) availability;
@@ -52,9 +51,9 @@ contract Blockspace {
         depositDeadline = _deadline;
     }
 
-    function createSpace(int _lat, int _long) public {
+    function createSpace(string _dataHash) public {
         require(msg.sender == owner);
-        Space memory space = Space(_lat, _long, spaceId, false);
+        Space memory space = Space(spaceId, _dataHash, true);
         spaces[spaceId] = space;
         spaceIds.push(spaceId);
         spaceId += 1;
@@ -113,9 +112,9 @@ contract Blockspace {
         return spaceIds;
     }
 
-    function getSpace(uint _id) public view returns (int lat, int long, uint id, bool active) {
+    function getSpace(uint _id) public view returns (uint, string, bool) {
         Space storage space = spaces[_id];
-        return (space.lat, space.long, space.id, space.active);
+        return (space.id, space.dataHash, space.active);
     }
 
     function getReservations(uint _spaceId, uint16 _start, uint16 _end) public view returns (address[] owners, uint16[] starts, uint16[] ends, uint[] amts) {
