@@ -10,7 +10,7 @@ contract TestBlockspace {
   function testStartEpochIsSet() public {
 
 
-    Assert.isAbove(blockspace.getStartEpoch(), 5, "It should update the deposit amount to 5.");
+    Assert.isAbove(blockspace.getStartEpoch(), 0, "The start epoch should be greater then zero.");
   }
 
   function testItUpdatesDeposit() public {
