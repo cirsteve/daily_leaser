@@ -4,8 +4,7 @@ contract Blockspace {
     address owner;
 
     uint depositAmount = 0;
-
-    uint depositDeadline;
+    uint dailyFee = 0;
 
     uint startEpoch;//the unix epoch at the time of deployment, used to define the index day for the scheduler
 
@@ -23,18 +22,18 @@ contract Blockspace {
     }
 
     struct Space {
-        uint id;
+        uint16 id;
         string dataHash;
         bool active;
-        mapping(uint16 => Reservation) reservations;
-        mapping(uint16 => bool) availability;
+        mapping(uint16 => Reservation) reservations;//mapping of uint16 representing the first date of a reservation to a reservation
+        mapping(uint16 => bool) availability;//mapping of uint16 representing a date and its availability
     }
 
-    uint spaceId;
+    uint16 spaceId;
 
-    uint[] public spaceIds;
+    uint16[] public spaceIds;
 
-    mapping (uint => Space) public spaces;
+    mapping (uint16 => Space) public spaces;
     mapping (address => uint16[]) ownerReservations;
 
 
@@ -47,8 +46,8 @@ contract Blockspace {
         depositAmount = _deposit;
     }
 
-    function updateDeadline(uint _deadline) public {
-        depositDeadline = _deadline;
+    function updateDailyFee(uint _fee) public {
+        dailyFee = _fee;
     }
 
     function createSpace(string _dataHash) public {
@@ -60,15 +59,15 @@ contract Blockspace {
         emit SpaceCreated(space.id, owner);
     }
 
-    function updateAvailability (uint _spaceId, uint16 _start, uint16 _end, bool isAvailable) private {
-        while (_start < _end) {
+    function updateAvailability (uint16 _spaceId, uint16 _start, uint16 _end, bool isAvailable) private {
+        while (_start <= _end) {
             require(spaces[_spaceId].availability[_start] == !isAvailable);
             spaces[_spaceId].availability[_start] = isAvailable;
             _start++;
         }
     }
 
-    function createReservation(uint _spaceId, uint16 _start, uint16 _end) public payable {
+    function createReservation(uint16 _spaceId, uint16 _start, uint16 _end) public payable {
         require(msg.value >= depositAmount);
         updateAvailability(_spaceId, _start, _end, true);
         Space storage space = spaces[_spaceId];
@@ -79,19 +78,19 @@ contract Blockspace {
         emit ReservationCreated(_spaceId, reservation.start, reservation.end, reservation.amtPaid);
     }
 
-    function payReservation (uint _spaceId, uint16 _resStart) public payable {
+    function payReservation (uint16 _spaceId, uint16 _resStart) public payable {
         spaces[_spaceId].reservations[_resStart].amtPaid += msg.value;
         emit ReservationPaid(_spaceId, _resStart, msg.value, msg.sender);
     }
 
-    function cancelReservation(uint _spaceId, uint16 _resStart) public {
+    function cancelReservation(uint16 _spaceId, uint16 _resStart) public {
         Space storage space = spaces[_spaceId];
         Reservation storage reservation = space.reservations[_resStart];
         require(reservation.owner == msg.sender);
         updateAvailability(_spaceId, reservation.start, reservation.end, false);
         uint refundAmt = reservation.amtPaid - depositAmount;
 
-        if (refundAmt < 0) {
+        if (refundAmt > 0) {
             msg.sender.transfer(refundAmt);
         }
 
@@ -108,16 +107,20 @@ contract Blockspace {
         return depositAmount;
     }
 
-    function getSpaces() public view returns (uint[]) {
+    function getDailyFee() public view returns (uint) {
+        return dailyFee;
+    }
+
+    function getSpaces() public view returns (uint16[]) {
         return spaceIds;
     }
 
-    function getSpace(uint _id) public view returns (uint, string, bool) {
+    function getSpace(uint16 _id) public view returns (uint16, string, bool) {
         Space storage space = spaces[_id];
         return (space.id, space.dataHash, space.active);
     }
 
-    function getReservations(uint _spaceId, uint16 _start, uint16 _end) public view returns (address[] owners, uint16[] starts, uint16[] ends, uint[] amts) {
+    function getReservations(uint16 _spaceId, uint16 _start, uint16 _end) public view returns (address[] owners, uint16[] starts, uint16[] ends, uint[] amts) {
         uint16 reservationsCount = _end - _start + 1;
         uint16 index = 0;
         owners = new address[](reservationsCount);
@@ -137,7 +140,7 @@ contract Blockspace {
 
     }
 
-    function getAvailability(uint _spaceId, uint16 _start, uint16 _end) public view returns (bool[] availability) {
+    function getAvailability(uint16 _spaceId, uint16 _start, uint16 _end) public view returns (bool[] availability) {
         uint16 availabilityCount = _end - _start + 1;
         uint16 index = 0;
         availability = new bool[](availabilityCount);
