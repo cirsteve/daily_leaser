@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { AccountData, ContractData, ContractForm } from 'drizzle-react-components'
 import PropTypes from 'prop-types'
 
-import Fields from './SpaceFields'
+import FieldsForm from './SpaceFields'
 import Space from './Space'
 
 class Home extends Component {
@@ -11,19 +11,25 @@ class Home extends Component {
       super(props);
       this.contracts = context.drizzle.contracts;
       this.getSpacesKey = this.contracts.Blockspace.methods.getSpaces.cacheCall();
+
       this.createSpace = this.createSpace.bind(this);
   }
 
   createSpace (hash) {
-      this.contracts.Blockspace.methods.createSpace.cacheSend(hash);
+      this.createSpaceKey = this.contracts.Blockspace.methods.createSpace.cacheSend(hash);
   }
 
   render() {
-    let spaceIds;
+    let content, fieldsForm;
+    let pendingId = 0;
     if (!(this.getSpacesKey in this.props.Blockspace.getSpaces)) {
-      spaceIds = "Loading Spaces";
+      content = "Loading Spaces";
+      fieldsForm = "Loading Form Data";
     } else {
-      spaceIds = this.props.Blockspace.getSpaces[this.getSpacesKey].value.map(id => <Space key={id} id={id} />);
+      let spaceIds = this.props.Blockspace.getSpaces[this.getSpacesKey].value;
+      pendingId = 1*spaceIds[spaceIds.length -1] + 1;
+      content = spaceIds.map(id => <Space key={id} id={id} />);
+      fieldsForm = <FieldsForm pendingId={pendingId} getFieldsHash={this.props.getFieldsHash}/>
     }
 
     return (
@@ -43,13 +49,18 @@ class Home extends Component {
             <p>This shows a simple ContractData component with no arguments, along with a form to set its value.</p>
 
             <p><strong>Create Space</strong>:</p>
-            <Fields getFieldsHash={this.props.getFieldsHash}/>
+            {fieldsForm}
             <p>Hash: {this.props.space.toCreate.hash}</p>
             <input type="button" value="Create Space" onClick={this.createSpace.bind(this, this.props.space.toCreate.hash)} />
+            <div>Depsoit
             <ContractData contract="Blockspace" method="getDepositAmount" />
             <ContractForm contract="Blockspace" method="updateDepositAmount" />
-            <ContractData contract="Blockspace" method="getSpaces" />
-            {spaceIds}
+            </div>
+            <div>Daily Fee
+            <ContractData contract="Blockspace" method="getDailyFee" />
+            <ContractForm contract="Blockspace" method="updateDailyFee" />
+            </div>
+            {content}
 
 
             <br/><br/>

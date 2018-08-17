@@ -47,8 +47,8 @@ const styles = theme => ({
 
 class Fields extends Component {
 
-  constructor() {
-      super()
+  constructor(props) {
+      super(props)
       this.renderInput = this.renderInput.bind(this);
       this.updateField = this.updateField.bind(this);
       this.state = {};
@@ -56,6 +56,7 @@ class Fields extends Component {
           acc[f.label] = '';
           return acc;
       }, {});
+      this.state.fields.id = props.pendingId;
       this.state.serializedFields = JSON.stringify(this.state.fields)
   }
 

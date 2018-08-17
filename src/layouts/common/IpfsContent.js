@@ -8,21 +8,21 @@ function spaceDetails(id, fields) {
 
 class IpfsContent extends Component {
   constructor (props, context) {
-      console.log('con', props, context)
+      console.log('ipfs content con', props, context)
       super(props);
-      this.props.getContent(this.props.hash);
+      if (!(this.props.hash in this.props.hashedContent)) this.props.getContent(this.props.hash);
   }
 
 
   render() {
       let ipfsData;
-      if (!(this.props.hash in this.props.space)) {
+      if (!(this.props.hash in this.props.hashedContent)) {
           ipfsData = `Loading from ipfs`;
       } else {
-          let fields = this.props.space[this.props.hash];
+          let fields = this.props.hashedContent[this.props.hash];
           ipfsData = Object.keys(fields).map( k => <div key={k}>{k} : {fields[k]}</div>);
       }
-      console.log(' rend ipfs: ', ipfsData)
+
     return (
       <div>
         {ipfsData}
@@ -39,8 +39,7 @@ IpfsContent.contextTypes = {
 const mapStateToProps = state => {
   return {
     Blockspace: state.contracts.Blockspace,
-
-    space: state.space,
+    hashedContent: state.space.hashedContent,
   }
 }
 

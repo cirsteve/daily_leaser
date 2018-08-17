@@ -2,27 +2,68 @@ import React, { Component } from 'react'
 import { AccountData, ContractData, ContractForm } from 'drizzle-react-components'
 import PropTypes from 'prop-types'
 
+import DatePicker from './DatePicker'
+import IpfsContent from '../common/IpfsContent'
+import Reservations from '../reservations/ReservationsContainer'
+import { daysFromEpoch } from '../../util/time'
+
+
+
 class Space extends Component {
   constructor (props, context) {
-      console.log('con', props, context)
+      console.log('con Space', props, context, props.accounts[0])
       super(props);
-      this.contracts = context.drizzle.contracts;
-      this.getSpaceKey = this.contracts.Blockspace.methods.getSpace.cacheCall(this.props.spaceIds);
-      this.createSpace = this.createSpace.bind(this);
+      this.getContractValues = this.getContractValues.bind(this);
+      this.createReservation = this.createReservation.bind(this, props.id);
+      this.methods = context.drizzle.contracts.Blockspace.methods;
+
+      this.getSpaceKey = this.methods.getSpace.cacheCall(props.id);
+      this.getDepositKey = this.methods.getDepositAmount.cacheCall();
+      this.getDailyFeeKey = this.methods.getDailyFee.cacheCall();
+      this.getStartEpochKey = this.methods.getStartEpoch.cacheCall();
+      this.getAvailabilityKey = this.methods.getAvailability.cacheCall(props.id, 0, 50);
+      this.availability = [];
   }
 
+  getContractValues () {
+    const bs = this.props.Blockspace;
+    return {
+        deposit: bs.getDepositAmount[this.getDepositKey] ?
+            bs.getDepositAmount[this.getDepositKey].value : 'Loading Deposit',
+        space: bs.getSpace[this.getSpaceKey] ?
+            <IpfsContent hash={this.props.Blockspace.getSpace[this.getSpaceKey].value[1]} /> : 'Loading Space',
+        fee: bs.getDailyFee[this.getDailyFeeKey] ?
+            bs.getDailyFee[this.getDailyFeeKey].value : 'Loading Fee',
+        epoch: bs.getStartEpoch[this.getStartEpochKey] ?
+            new Date(1*bs.getStartEpoch[this.getStartEpochKey].value).toString() : 'Loading Epoch'
+    }
+  }
+
+  createReservation (id) {
+      const epoch = new Date(1*this.props.Blockspace.getStartEpoch[this.getStartEpochKey].value);
+      const start = daysFromEpoch(epoch, this.props.reservationDates.startDate);
+      const end = daysFromEpoch(epoch, this.props.reservationDates.endDate);
+      this.methods.createReservation.cacheSend(
+          1*id,
+          start,
+          end,
+          {value: 100000});
+  }
 
   render() {
-    let spaceId;
-    if (!(this.getSpaceKey in this.props.Blockspace.getSpace)) {
-      spaceId = "Loading Space";
+    let {space, deposit, fee, epoch} = this.getContractValues();
+    let reservations;
+
+    if (this.props.accounts[0]) {
+        reservations = <Reservations account={this.props.accounts[0]} />;
     } else {
-      spaceId = this.props.Blockspace.getSpace[this.getSpaceKey].value;
+        reservations = 'Loading Account';
     }
+
 
     return (
 
-
+      <main className="container">
         <div className="pure-g">
 
           <div className="pure-u-1-1">
@@ -34,21 +75,25 @@ class Space extends Component {
 
           <div className="pure-u-1-1">
             <h2>Blockspace</h2>
-            <p>This shows a simple ContractData component with no arguments, along with a form to set its value.</p>
+            <p>Reserve a Space Below</p>
+            <div>Deposit: {deposit}</div>
+            <div>Daily Fee: {fee}</div>
+            <div>Start Date: {epoch}</div>
 
 
-            <ContractData contract="Blockspace" method="getDepositAmount" />
-            <ContractForm contract="Blockspace" method="updateDepositAmount" />
-            <ContractData contract="Blockspace" method="getSpaces" />
-            {spaceId}
+
+            {space}
+            <input type="button" value="Create Reservation" onClick={this.createReservation} />
+
+            { epoch === 'Loading Epoch' ? epoch : <DatePicker id={this.props.id} epoch={new Date(epoch)} /> }
 
 
-            <br/><br/>
+            {reservations}
           </div>
 
 
         </div>
-
+      </main>
     )
   }
 }

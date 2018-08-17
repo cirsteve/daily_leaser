@@ -2,8 +2,9 @@
 const IPFS = require('ipfs-api');
 const ipfs = new IPFS({ host: 'ipfs.infura.io', port: 5001, protocol: 'https' });
 
+//ip4/127.0.0.1/tcp/5001
 //run with local daemon
 // const ipfsApi = require('ipfs-api');
-// const ipfs = new ipfsApi('localhost', '5001', {protocol: 'http'});
+//const ipfs = new IPFS('/ip4/127.0.0.1/tcp/5001', '', {protocol: 'http'});
 
-export default ipfs; 
+export default ipfs;
