@@ -5,7 +5,7 @@ import PropTypes from 'prop-types'
 import DatePicker from './DatePicker'
 import IpfsContent from '../common/IpfsContent'
 import Reservations from '../reservations/ReservationsContainer'
-import { daysFromEpoch } from '../../util/time'
+import { daysFromEpoch, MS_PER_DAY } from '../../util/time'
 
 
 
@@ -13,7 +13,6 @@ class Space extends Component {
   constructor (props, context) {
       console.log('con Space', props, context, props.accounts[0])
       super(props);
-      this.getContractValues = this.getContractValues.bind(this);
       this.createReservation = this.createReservation.bind(this, props.id);
       this.methods = context.drizzle.contracts.Blockspace.methods;
 
@@ -22,6 +21,7 @@ class Space extends Component {
       this.getDailyFeeKey = this.methods.getDailyFee.cacheCall();
       this.getStartEpochKey = this.methods.getStartEpoch.cacheCall();
       this.getAvailabilityKey = this.methods.getAvailability.cacheCall(props.id, 0, 50);
+
       this.availability = [];
   }
 
@@ -39,7 +39,7 @@ class Space extends Component {
     }
   }
 
-  createReservation (id) {
+  createReservation (id, value) {
       const epoch = new Date(1*this.props.Blockspace.getStartEpoch[this.getStartEpochKey].value);
       const start = daysFromEpoch(epoch, this.props.reservationDates.startDate);
       const end = daysFromEpoch(epoch, this.props.reservationDates.endDate);
@@ -47,18 +47,23 @@ class Space extends Component {
           1*id,
           start,
           end,
-          {value: 100000});
+          {value});
   }
 
   render() {
     let {space, deposit, fee, epoch} = this.getContractValues();
     let reservations;
 
-    if (this.props.accounts[0]) {
-        reservations = <Reservations account={this.props.accounts[0]} />;
+    if (this.props.accounts[0] && this.props.Blockspace.getStartEpoch[this.getStartEpochKey]) {
+        reservations = <Reservations account={this.props.accounts[0]} startEpoch={1*this.props.Blockspace.getStartEpoch[this.getStartEpochKey].value} />;
     } else {
         reservations = 'Loading Account';
     }
+
+    const reservationDays = this.props.reservationDates.startDate ?
+        (this.props.reservationDates.endDate - this.props.reservationDates.startDate) / MS_PER_DAY + 1: 0;
+
+    const reservationCost = reservationDays * fee;
 
 
     return (
@@ -74,16 +79,25 @@ class Space extends Component {
           </div>
 
           <div className="pure-u-1-1">
-            <h2>Blockspace</h2>
             <p>Reserve a Space Below</p>
+            {space}
+
             <div>Deposit: {deposit}</div>
             <div>Daily Fee: {fee}</div>
-            <div>Start Date: {epoch}</div>
 
-
-
-            {space}
-            <input type="button" value="Create Reservation" onClick={this.createReservation} />
+            <div>
+                <div>
+                    Start: {this.props.reservationDates.startDate ?
+                        this.props.reservationDates.startDate.toDateString() : '-'}
+                </div>
+                <div>
+                    End: {this.props.reservationDates.endDate ?
+                        this.props.reservationDates.endDate.toDateString() : '-'}
+                </div>
+            </div>
+            <div>{reservationDays} days for {reservationCost} at a daily rate of {fee} with a minimum deposit of {deposit}</div>
+            <input type="button" value={`Pay ${deposit} Deposit to Create You Reservation`} disabled={ this.props.reservationDates.startDate ? false: true } onClick={this.createReservation.bind(this, deposit)} />
+            <input type="button" value={`Pay Full ${reservationCost} to Create You Reservation`} disabled={ this.props.reservationDates.startDate ? false: true } onClick={this.createReservation.bind(this, reservationCost)} />
 
             { epoch === 'Loading Epoch' ? epoch : <DatePicker id={this.props.id} epoch={new Date(epoch)} /> }
 

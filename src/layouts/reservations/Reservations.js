@@ -1,22 +1,13 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 
-
-const Reservation = (res, cancel, pay) => (
-        <div>
-        res[0]
-        <input type="button" value="Pay" onClick={pay} />
-        <input type="button" value="Cancel" onClick={cancel} />
-        </div>
-    )
+import Reservation from './Reservation'
 
 
 class Reservations extends Component {
   constructor (props, context) {
       console.log('con', props, context)
       super(props);
-      this.cancelReservation = this.cancelReservation.bind(this);
-      this.payReservation = this.payReservation.bind(this);
       this.methods = context.drizzle.contracts.Blockspace.methods;
       this.reservationsKey = this.methods.getReservationsForOwner.cacheCall(props.account)
   }
@@ -25,19 +16,29 @@ class Reservations extends Component {
       if (this.props.accounts[0]) ;
   }
 
-  cancelReservation (spaceId, resId) {
-      this.cancelReservationKey = this.methods.cancelReservation.cacheSend(spaceId, resId);
+  formatReservations (spaceIds, resIds) {
+      return spaceIds.map((sId, i) => [sId, resIds[i], i])
+        .filter(r => 1*r[0])
+        .map((r, i) => <Reservation key={r[0]+r[1]} spaceId={r[0]} resId={r[1]} startEpoch={this.props.startEpoch} arrayIdx={i} />);
   }
 
-  payReservation (spaceId, resId) {
-      this.payReservationKey = this.methods.payReservation.cacheSend(spaceId, resId);
-
+  renderReservations (reservations) {
+    if (reservations[0].length) {
+        let res = this.formatReservations(reservations[0], reservations[1]);
+        if (!res.length) {
+            return 'No reservations';
+        } else {
+            return res;
+        }
+    } else {
+        return 'No reservations'
+    }
   }
 
   render() {
     let reservations;
     if (this.props.Blockspace.getReservationsForOwner[this.reservationsKey]) {
-        reservations = this.props.Blockspace.getReservationsForOwner[this.reservationsKey].value.map(r => Reservation(r, this.cancelReservation, this.payReservation));
+        reservations = this.renderReservations(this.props.Blockspace.getReservationsForOwner[this.reservationsKey].value);
     } else {
         reservations = 'Loading Reservations'
     }

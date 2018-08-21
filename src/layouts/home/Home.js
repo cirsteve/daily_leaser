@@ -29,8 +29,11 @@ class Home extends Component {
       let spaceIds = this.props.Blockspace.getSpaces[this.getSpacesKey].value;
       pendingId = 1*spaceIds[spaceIds.length -1] + 1;
       content = spaceIds.map(id => <Space key={id} id={id} />);
-      fieldsForm = <FieldsForm pendingId={pendingId} getFieldsHash={this.props.getFieldsHash}/>
+      fieldsForm = <FieldsForm pendingId={pendingId} generateFieldsHash={this.props.generateFieldsHash}/>
     }
+
+    const fieldsHash = this.props.space.pendingHashGeneration ?
+        'Generating Hash' : this.props.space.toCreate.hash;
 
     return (
 
@@ -50,7 +53,7 @@ class Home extends Component {
 
             <p><strong>Create Space</strong>:</p>
             {fieldsForm}
-            <p>Hash: {this.props.space.toCreate.hash}</p>
+            <p>Hash: {fieldsHash}</p>
             <input type="button" value="Create Space" onClick={this.createSpace.bind(this, this.props.space.toCreate.hash)} />
             <div>Depsoit
             <ContractData contract="Blockspace" method="getDepositAmount" />

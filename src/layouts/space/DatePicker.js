@@ -18,12 +18,14 @@ class DatePicker extends Component {
       const startDay = daysFromEpoch(this.props.epoch, this.today);
       this.updateSelection = this.updateSelection.bind(this);
       this.onPreviewChange = this.onPreviewChange.bind(this);
-      this.updateCache = this.updateCache.bind(this)
       this.fetchAvailability = this.fetchAvailability.bind(this, this.props.id);
+      //this.updateCache = this.updateCache.bind(this)
+
       this.getAvailabilityKey = context.drizzle.contracts.Blockspace.methods.getAvailability.cacheCall(1*this.props.id, startDay, startDay + 59);
       this.cachedAvailability = [];
       this.bookedDates = [];
       this.bookedRanges = [];
+
       this.state = {selections: [{
 			startDate: new Date(),
 			endDate: new Date(),
@@ -32,7 +34,6 @@ class DatePicker extends Component {
   }
 
   updateSelection (inpt) {
-      console.log('uudd:', inpt);
       const selection = inpt[Object.keys(inpt)[0]];
       const selections = [selection];
       this.setState(Object.assign({}, this.state, {selections}));
@@ -42,7 +43,6 @@ class DatePicker extends Component {
   onPreviewChange (newDate) {
       const from = daysFromEpoch(this.props.epoch, new Date(newDate.getUTCFullYear(), newDate.getUTCMonth(), 1));
       this.fetchAvailability(from);
-      console.log('opc: ', newDate, from);
   }
 
   fetchAvailability (id, day) {
@@ -64,11 +64,13 @@ class DatePicker extends Component {
         .filter(a => a);
       this.bookedRanges = this.cachedAvailability
         .reduce((acc, a, i) => {
-            if (a) {
+            if (a) {//if the
                 if (!acc[acc.length-1] || acc[acc.length-1].endDate) {
                     acc.push({startDate: dateFromEpoch(this.props.epoch, i), key: 'booked' })
-                } else {
-                    acc[acc.length-1].endDate = dateFromEpoch(this.props.epoch, i)
+                }
+            } else {
+                if (acc[acc.length-1]  && !acc[acc.length-1].endDate) {
+                    acc[acc.length-1].endDate = dateFromEpoch(this.props.epoch, i-1)
                 }
             }
             return acc;

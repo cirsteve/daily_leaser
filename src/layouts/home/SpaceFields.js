@@ -63,7 +63,7 @@ class Fields extends Component {
   updateField (label, e) {
       let update = {};
       update[label] = e.target.value;
-      const fields = Object.assign({}, this.state.fields, update);
+      const fields = Object.assign({}, this.state.fields, update, {id: this.props.pendingId});
       this.setState(Object.assign({}, this.state, {fields, serializedFields: JSON.stringify(fields)}));
   }
 
@@ -99,10 +99,10 @@ class Fields extends Component {
 
           <div className="pure-u-1-1">
 
-              {spaceFields.map(this.renderInput)}
+            {spaceFields.map(this.renderInput)}
 
 
-             <input type="button" value="Generate Hash" onClick={this.props.getFieldsHash.bind(this, this.state.serializedFields)} />
+            <input type="button" value="Generate Hash" onClick={this.props.generateFieldsHash.bind(this, this.state.serializedFields)} />
           </div>
 
 
