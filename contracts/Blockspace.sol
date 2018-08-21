@@ -15,6 +15,7 @@ contract Blockspace is Packing, Ownable {
     event ReservationCreated(uint spaceId, uint16 start, uint16 end, uint amtPaid, uint cost);
     event ReservationPaid(uint spaceId, uint16 start, uint paidAmt, address payee);
     event ReservationCancelled(uint spaceId, uint16 start, uint refund, address owner);
+    event CreditClaimed(address claimant, uint amount);
     event RefundIssued(uint amt, address recipient);
 
 
@@ -40,6 +41,7 @@ contract Blockspace is Packing, Ownable {
 
     mapping (uint24=> Space) public spaces;
     mapping (address => uint40[]) ownerReservations;
+    mapping (address => uint) credits
 
 
     constructor (uint _startEpoch) public {
@@ -99,14 +101,18 @@ contract Blockspace is Packing, Ownable {
         updateAvailability(_spaceId, reservation.start, reservation.end, false);
         uint refundAmt = reservation.amtPaid - depositAmount;
         reservation.amtPaid = depositAmount;
-
-        if (refundAmt > 0) {
-            msg.sender.transfer(refundAmt);
-        }
+        credits[msg.sender] += refundAmt;
 
         delete space.reservations[_resStart];
         emit ReservationCancelled(_spaceId, _resStart, refundAmt, msg.sender);
+    }
 
+    function claimCredit () public {
+        uint creditAmt = credits[msg.sender];
+        credits[msg.sender] = 0;
+        msg.sender.transfer(creditAmt);
+
+        emit CreditClaimed(msg.sender, creditAmt);
     }
 
     function issueRefund(uint _amt, address _recipient) public onlyOwner {
