@@ -8,6 +8,8 @@ import { DrizzleProvider } from 'drizzle-react'
 import App from './App'
 import HomeContainer from './layouts/home/HomeContainer'
 import SpaceContainer from './layouts/space/SpaceContainer'
+import AdminContainer from './layouts/admin/AdminContainer'
+import ReservationsContainer from './layouts/reservations/ReservationsContainer'
 import { LoadingContainer } from 'drizzle-react-components'
 
 import store from './store'
@@ -23,6 +25,8 @@ ReactDOM.render((
           <Route path="/" component={App}>
             <IndexRoute component={HomeContainer} />
             <Route path="/space/:id" component={SpaceContainer} />
+            <Route path="/admin" component={AdminContainer} />
+            <Route path="/user" component={ReservationsContainer} />
           </Route>
         </Router>
       </LoadingContainer>

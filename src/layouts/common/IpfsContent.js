@@ -2,10 +2,6 @@ import React, { Component } from 'react'
 import { drizzleConnect } from 'drizzle-react'
 import PropTypes from 'prop-types'
 
-function spaceDetails(id, fields) {
-
-}
-
 class IpfsContent extends Component {
   constructor (props, context) {
       console.log('ipfs content con', props, context)

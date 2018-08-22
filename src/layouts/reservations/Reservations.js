@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 
+import { AccountData } from 'drizzle-react-components'
+
 import Reservation from './Reservation'
 
 
@@ -49,6 +51,7 @@ class Reservations extends Component {
         <div className="pure-g">
 
           <div className="pure-u-1-1">
+            <AccountData accountIndex="0" units="ether" precision="3" />
             <h2>Reservations</h2>
 
             {reservations}
