@@ -59,7 +59,6 @@ contract('Blockspace', function(accounts) {
     await instance.cancelReservation(0, 5, 0);
     let reservation = await instance.getReservations.call(0, 5, 6);
     assert.equal(reservation[0][0], 0, 'reservation is cancelled');
-    }
-  );
+    });
 
 });
