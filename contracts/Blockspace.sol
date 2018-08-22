@@ -41,7 +41,7 @@ contract Blockspace is Packing, Ownable {
 
     mapping (uint24=> Space) public spaces;
     mapping (address => uint40[]) ownerReservations;
-    mapping (address => uint) credits
+    mapping (address => uint) credits;
 
 
     constructor (uint _startEpoch) public {
@@ -137,6 +137,10 @@ contract Blockspace is Packing, Ownable {
         return spaceIds;
     }
 
+    function getOwner() public view returns address) {
+        return owner;
+    }
+
     function getSpace(uint24 _id) public view returns (uint24, string, bool) {
         Space storage space = spaces[_id];
         return (space.id, space.dataHash, space.active);
@@ -187,6 +191,10 @@ contract Blockspace is Packing, Ownable {
             resSpaceIds[i] = resSpaceId;
             starts[i] = reservationStart;
         }
+    }
+
+    function getCreditBalance () public view returns (uint) {
+        return credits[msg.sender];
     }
 
  }
