@@ -11,6 +11,8 @@ contract Blockspace is Packing, Ownable {
 
     uint startEpoch;//the unix epoch at the time of deployment, used to define the index day for the scheduler
 
+    string layoutHash;//string representing a hash for an image file on ipfs
+
     event SpaceCreated(uint id, address owner);
     event ReservationCreated(uint spaceId, uint16 start, uint16 end, uint amtPaid, uint cost);
     event ReservationPaid(uint spaceId, uint16 start, uint paidAmt, address payee);
@@ -54,6 +56,10 @@ contract Blockspace is Packing, Ownable {
 
     function updateDailyFee(uint _fee) public onlyOwner {
         dailyFee = _fee;
+    }
+
+    function updateLayoutHash (string _hash) public onlyOwner {
+        layoutHash = _hash;
     }
 
     function createSpace(string _dataHash) public onlyOwner {
@@ -137,8 +143,12 @@ contract Blockspace is Packing, Ownable {
         return spaceIds;
     }
 
-    function getOwner() public view returns address) {
+    function getOwner() public view returns (address) {
         return owner;
+    }
+
+    function getLayoutHash() public view returns (string) {
+        return layoutHash;
     }
 
     function getSpace(uint24 _id) public view returns (uint24, string, bool) {
