@@ -28,17 +28,20 @@ class Reservation extends Component {
       const cost = res[4][0];
       const paid = res[3][0];
       const owed = cost - paid;
+      const start = dateFromEpoch(this.props.startEpoch, res[1][0]).toDateString();
+      const end = dateFromEpoch(this.props.startEpoch, res[2][0]).toDateString();
       return (
           <div>
             <div>
-            Start:<br /> {dateFromEpoch(this.props.startEpoch, res[1][0]).toDateString()}
+            Space: {this.props.spaceId}<br />
+            Start:<br /> {start}
             </div>
             <div>
-            End: <br />{dateFromEpoch(this.props.startEpoch, res[2][0]).toDateString()}
+            End: <br />{end}
             </div>
             <div>
-            Cost: {cost}
-            Paid:-{paid}
+            Cost: {cost}<br />
+            Paid- :{paid}<br />
             Owed: {owed}
             </div>
             <input type="button" value={`Pay ${owed} Balance`} disabled={owed <= 0 ? true: false} onClick={this.payReservation.bind(this, owed)} />

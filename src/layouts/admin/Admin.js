@@ -13,6 +13,7 @@ class Admin extends Component {
       console.log('con', props, context)
       super(props);
       this.getSpacesKey = context.drizzle.contracts.Blockspace.methods.getSpaces.cacheCall();
+      this.pausedKey = context.drizzle.contracts.Blockspace.methods.paused.cacheCall();
 
       this.createSpace = this.createSpace.bind(this);
 
@@ -25,12 +26,20 @@ class Admin extends Component {
       this.createSpaceKey = this.context.drizzle.contracts.Blockspace.methods.createSpace.cacheSend(hash);
   }
 
+  togglePause (isPaused) {
+    if (isPaused) {
+      this.context.drizzle.contracts.Blockspace.methods.unpause.cacheSend();
+    } else {
+      this.context.drizzle.contracts.Blockspace.methods.pause.cacheSend();
+    }
+  }
+
   showMeta (showMeta) {
       this.setState({showMeta});
   }
 
   render() {
-    let spaces, fieldsForm;
+    let spaces, fieldsForm, paused;
     let pendingId = 0;
     if (!(this.getSpacesKey in this.props.Blockspace.getSpaces)) {
       spaces = "Loading Spaces";
@@ -55,6 +64,14 @@ class Admin extends Component {
         'hidden': !this.state.showMeta
     })
 
+    if (!(this.pausedKey in this.props.Blockspace.paused)) {
+      paused = "Loading Paused";
+    } else {
+      paused = this.props.Blockspace.paused[this.pausedKey].value ?
+        <input type="button" value="Unpause Contract" onClick={this.togglePause.bind(this, true)} /> :
+        <input type="button" value="Pause Contract" onClick={this.togglePause.bind(this, false)} /> ;
+    }
+
     return (
 
       <main className="container">
@@ -62,7 +79,7 @@ class Admin extends Component {
 
           <div className="pure-u-1-1">
             <Nav />
-            <h2>Active Account</h2>
+            <h5>Active Account</h5>
             <AccountData accountIndex="0" units="ether" precision="3" />
 
             <br/><br/>
@@ -70,6 +87,9 @@ class Admin extends Component {
 
           <div className="pure-u-1-1">
             <div className="menu pure-u-1-3">
+                <div>
+                  {paused}
+                </div>
                 <div onClick={this.showMeta.bind(this, true)}>
                     Edit Meta Data
                 </div>

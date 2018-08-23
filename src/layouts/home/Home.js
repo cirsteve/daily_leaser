@@ -10,11 +10,12 @@ class Home extends Component {
       super(props);
       this.contracts = context.drizzle.contracts;
       this.getSpacesKey = this.contracts.Blockspace.methods.getSpaces.cacheCall();
-      this.getLayoutHashKey = this.contracts.Blockspace.methods.getLayoutHash.cacheCall();
+      this.layoutHashKey = this.contracts.Blockspace.methods.layoutHash.cacheCall();
+
   }
 
   render() {
-    let spaces, layoutHash;
+    let spaces, layoutHash, paused;
     if (!(this.getSpacesKey in this.props.Blockspace.getSpaces)) {
       spaces = "Loading Spaces";
     } else {
@@ -22,10 +23,10 @@ class Home extends Component {
       spaces = spaceIds.map(id => <Space key={id} id={id} />);
     }
 
-    if (!(this.getLayoutHashKey in this.props.Blockspace.getLayoutHash)) {
+    if (!(this.layoutHashKey in this.props.Blockspace.layoutHash)) {
       layoutHash = "Loading Layout Hash";
     } else {
-      layoutHash = <img src={`https://ipfs.infura.io/ipfs/${this.props.Blockspace.getLayoutHash[this.getLayoutHashKey].value}`} />;
+      layoutHash = <img src={`https://ipfs.infura.io/ipfs/${this.props.Blockspace.layoutHash[this.layoutHashKey].value}`} />;
     }
 
     return (
@@ -34,6 +35,7 @@ class Home extends Component {
         <div className="pure-g">
 
           <div className="pure-u-1-1">
+          {paused}
             <Nav />
             <h2><a href="/user">Account Details</a></h2>
             <AccountData accountIndex="0" units="ether" precision="3" />

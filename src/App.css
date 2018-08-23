@@ -51,7 +51,6 @@ ul li:not(:last-child) {
 /* NAVBAR */
 
 .navbar {
-  position: fixed;
   padding: 5px;
   background: #0c1a2b;
   font-family: 'Oswald', 'Arial Narrow', sans-serif;
@@ -72,13 +71,17 @@ ul li:not(:last-child) {
   text-transform: none;
 }
 
-.navbar .navbar-right {
+.navbar.navbar-right {
   float: right;
 }
 
 .navbar .uport-logo {
   height: 16px;
   margin-right: 10px;
+}
+
+.navbar > a {
+  margin: 0 15px;
 }
 
 /* LOADING SCREEN */
@@ -107,4 +110,12 @@ ul li:not(:last-child) {
   color: darkgreen;
   background: darkseagreen;
   border: 1px solid darkgreen;
+}
+
+.inline-divs > div {
+  display: inline-block;
+}
+
+.right {
+  float: right;
 }

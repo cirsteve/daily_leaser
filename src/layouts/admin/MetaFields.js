@@ -6,6 +6,10 @@ import PropTypes from 'prop-types'
 import Dropzone from 'react-dropzone'
 
 class Meta extends Component {
+  constructor(props, context) {
+    super(props);
+    this.layoutHashKey = context.drizzle.contracts.Blockspace.methods.layoutHash.cacheCall();
+  }
 
   onFileDrop (files) {
       const generateFileHash = this.props.generateFileHash;
@@ -28,21 +32,33 @@ class Meta extends Component {
   }
 
   render() {
+    let layoutHash = '';
+    if (this.layoutHashKey in this.props.Blockspace.layoutHash) {
+      layoutHash = this.props.Blockspace.layoutHash[this.layoutHashKey].value;
+    }
+
+    if (layoutHash === '') {
+      layoutHash = 'No Layout Set';
+    }
     return (
 
         <div className="pure-g">
 
 
           <div className="pure-u-1-1">
-              <div>Deposit
-                <ContractData contract="Blockspace" method="getDepositAmount" /><br />
+              <div className="pure-u-1-3">
+                <h4>Deposit</h4>
+                <ContractData contract="Blockspace" method="depositAmount" /><br />
                 <ContractForm contract="Blockspace" method="updateDepositAmount" />
               </div>
-              <div>Daily Fee
-                <ContractData contract="Blockspace" method="getDailyFee" /><br />
+              <div className="pure-u-1-3 right">
+                <h4>Daily Fee</h4>
+                <ContractData contract="Blockspace" method="dailyFee" /><br />
                 <ContractForm contract="Blockspace" method="updateDailyFee" />
               </div>
-              <div>Layout File
+              <div>
+                <h4>Layout File</h4>
+                {layoutHash}
                 <Dropzone onDrop={this.onFileDrop.bind(this)}/>
               </div>
               <input type="button" disabled={this.props.fileHash ? false : true } value="Update Layout File" onClick={this.updateLayoutHash.bind(this, this.props.fileHash)} />
@@ -66,6 +82,7 @@ const mapStateToProps = state => {
   return {
     fileHash: state.space.fileHash,
     pendingHash: state.space.pendingFileHashGeneration,
+    Blockspace: state.contracts.Blockspace
   }
 }
 

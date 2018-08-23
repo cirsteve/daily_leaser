@@ -18,9 +18,9 @@ class Space extends Component {
       this.methods = context.drizzle.contracts.Blockspace.methods;
 
       this.getSpaceKey = this.methods.getSpace.cacheCall(props.id);
-      this.getDepositKey = this.methods.getDepositAmount.cacheCall();
-      this.getDailyFeeKey = this.methods.getDailyFee.cacheCall();
-      this.getStartEpochKey = this.methods.getStartEpoch.cacheCall();
+      this.depositKey = this.methods.depositAmount.cacheCall();
+      this.dailyFeeKey = this.methods.dailyFee.cacheCall();
+      this.startEpochKey = this.methods.startEpoch.cacheCall();
       this.getAvailabilityKey = this.methods.getAvailability.cacheCall(props.id, 0, 50);
 
       this.availability = [];
@@ -29,19 +29,19 @@ class Space extends Component {
   getContractValues () {
     const bs = this.props.Blockspace;
     return {
-        deposit: bs.getDepositAmount[this.getDepositKey] ?
-            bs.getDepositAmount[this.getDepositKey].value : 'Loading Deposit',
+        deposit: bs.depositAmount[this.depositKey] ?
+            bs.depositAmount[this.depositKey].value : 'Loading Deposit',
         space: bs.getSpace[this.getSpaceKey] ?
             <IpfsContent hash={this.props.Blockspace.getSpace[this.getSpaceKey].value[1]} /> : 'Loading Space',
-        fee: bs.getDailyFee[this.getDailyFeeKey] ?
-            bs.getDailyFee[this.getDailyFeeKey].value : 'Loading Fee',
-        epoch: bs.getStartEpoch[this.getStartEpochKey] ?
-            new Date(1*bs.getStartEpoch[this.getStartEpochKey].value).toString() : 'Loading Epoch'
+        fee: bs.dailyFee[this.dailyFeeKey] ?
+            bs.dailyFee[this.dailyFeeKey].value : 'Loading Fee',
+        epoch: bs.startEpoch[this.startEpochKey] ?
+            new Date(1*bs.startEpoch[this.startEpochKey].value).toString() : 'Loading Epoch'
     }
   }
 
   createReservation (id, value) {
-      const epoch = new Date(1*this.props.Blockspace.getStartEpoch[this.getStartEpochKey].value);
+      const epoch = new Date(1*this.props.Blockspace.startEpoch[this.startEpochKey].value);
       const start = daysFromEpoch(epoch, this.props.reservationDates.startDate);
       const end = daysFromEpoch(epoch, this.props.reservationDates.endDate);
       this.methods.createReservation.cacheSend(
@@ -54,12 +54,6 @@ class Space extends Component {
   render() {
     let {space, deposit, fee, epoch} = this.getContractValues();
     let reservations;
-
-    if (this.props.accounts[0] && this.props.Blockspace.getStartEpoch[this.getStartEpochKey]) {
-        reservations = <Reservations account={this.props.accounts[0]} startEpoch={1*this.props.Blockspace.getStartEpoch[this.getStartEpochKey].value} />;
-    } else {
-        reservations = 'Loading Account';
-    }
 
     const reservationDays = this.props.reservationDates.startDate ?
         (this.props.reservationDates.endDate - this.props.reservationDates.startDate) / MS_PER_DAY + 1: 0;
@@ -98,8 +92,8 @@ class Space extends Component {
                 </div>
             </div>
             <div>{reservationDays} days for {reservationCost} at a daily rate of {fee} with a minimum deposit of {deposit}</div>
-            <input type="button" value={`Pay ${deposit} Deposit to Create You Reservation`} disabled={ this.props.reservationDates.startDate ? false: true } onClick={this.createReservation.bind(this, deposit)} />
-            <input type="button" value={`Pay Full ${reservationCost} to Create You Reservation`} disabled={ this.props.reservationDates.startDate ? false: true } onClick={this.createReservation.bind(this, reservationCost)} />
+            <input type="button" value={`Pay ${deposit} Deposit to Create Reservation`} disabled={ this.props.reservationDates.startDate ? false: true } onClick={this.createReservation.bind(this, deposit)} />
+            <input type="button" value={`Pay Full ${reservationCost} to Create Reservation`} disabled={ this.props.reservationDates.startDate ? false: true } onClick={this.createReservation.bind(this, reservationCost)} />
 
             { epoch === 'Loading Epoch' ? epoch : <DatePicker id={this.props.id} epoch={new Date(epoch)} /> }
 

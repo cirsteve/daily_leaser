@@ -66,7 +66,7 @@ class DatePicker extends Component {
         .reduce((acc, a, i) => {
             if (a) {//if the
                 if (!acc[acc.length-1] || acc[acc.length-1].endDate) {
-                    acc.push({startDate: dateFromEpoch(this.props.epoch, i), key: 'booked' })
+                    acc.push({startDate: dateFromEpoch(this.props.epoch, i), key: 'booked', disable: true, color: 'grey' })
                 }
             } else {
                 if (acc[acc.length-1]  && !acc[acc.length-1].endDate) {
@@ -85,7 +85,7 @@ class DatePicker extends Component {
          'loading Availability';
     }
     const ranges = this.state.selections.concat(this.bookedRanges);
-
+    console.log('bookd dates: ', this.bookedDates);
     return (
 
 
@@ -99,9 +99,10 @@ class DatePicker extends Component {
                 onChange={this.updateSelection} // PropTypes.func.isRequired,
                 minDate={this.today}
                 onShownDateChange={this.onPreviewChange}
-                disabledDates={this.bookedDates.map(a => new Date(a))}
+                //disableDates={this.bookedDates.map(a => new Date(a))}
                 months={2}
                 showDateDisplay={false}
+                direction={'horizontal'}
               />
 
 

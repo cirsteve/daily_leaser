@@ -12,17 +12,16 @@ class Reservations extends Component {
       console.log('con', props, context)
       super(props);
       this.methods = context.drizzle.contracts.Blockspace.methods;
+      this.startEpochKey = this.methods.startEpoch.cacheCall();
       this.reservationsKey = this.methods.getReservationsForOwner.cacheCall(props.account)
-  }
 
-  fetchReservations () {
-      if (this.props.accounts[0]) ;
   }
 
   formatReservations (spaceIds, resIds) {
+    let startEpoch = 1*this.props.Blockspace.startEpoch[this.startEpochKey].value;
       return spaceIds.map((sId, i) => [sId, resIds[i], i])
-        .filter(r => 1*r[0])
-        .map((r, i) => <Reservation key={r[0]+r[1]} spaceId={r[0]} resId={r[1]} startEpoch={this.props.startEpoch} arrayIdx={i} />);
+        //.filter(r => 1*r[0] * r[1])
+        .map((r, i) => <Reservation key={r[0]+r[1]} spaceId={r[0]} resId={r[1]} startEpoch={startEpoch} arrayIdx={i} />);
   }
 
   renderReservations (reservations) {

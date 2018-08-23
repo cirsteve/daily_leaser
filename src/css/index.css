@@ -1,0 +1,11 @@
+.inline-divs div {
+  display: inline-block;
+}
+
+.nav-row {
+  padding-left: 15px;
+}
+
+.nav-row > div{
+  padding-right: 10px;
+}
