@@ -4,12 +4,9 @@ import { drizzleConnect } from 'drizzle-react'
 // May still need this even with data function to refresh component on updates for this contract.
 const mapStateToProps = state => {
   return {
-    accounts: state.accounts,
+    account: state.accounts[0],
     Blockspace: state.contracts.Blockspace,
-    contracts: state.contracts,
-    spaceIds: Object.keys(state.contracts.Blockspace.getSpaces.valueOf()).length ? state.contracts.Blockspace.getSpaces.valueOf()["0x0"].value : [],
     space: state.space,
-    drizzleInitialized: state.drizzleStatus.initialized
   }
 }
 
@@ -20,6 +17,4 @@ const dispatchToProps = (dispatch) => {
     };
 }
 
-const AdminContainer = drizzleConnect(Admin, mapStateToProps, dispatchToProps);
-
-export default AdminContainer
+export default drizzleConnect(Admin, mapStateToProps, dispatchToProps);

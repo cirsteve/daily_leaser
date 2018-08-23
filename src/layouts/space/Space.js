@@ -1,9 +1,10 @@
 import React, { Component } from 'react'
-import { AccountData, ContractData, ContractForm } from 'drizzle-react-components'
+import { AccountData } from 'drizzle-react-components'
 import PropTypes from 'prop-types'
 
 import DatePicker from './DatePicker'
 import IpfsContent from '../common/IpfsContent'
+import Nav from '../common/Nav'
 import Reservations from '../reservations/ReservationsContainer'
 import { daysFromEpoch, MS_PER_DAY } from '../../util/time'
 
@@ -72,6 +73,7 @@ class Space extends Component {
         <div className="pure-g">
 
           <div className="pure-u-1-1">
+            <Nav />
             <h2>Active Account</h2>
             <AccountData accountIndex="0" units="ether" precision="3" />
 

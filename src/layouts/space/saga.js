@@ -1,15 +1,26 @@
-import { call, put, takeEvery, takeLatest, all } from 'redux-saga/effects'
+import { call, put, takeEvery, all } from 'redux-saga/effects'
 import ipfs from '../../ipfs';
 
 // worker Saga: will be fired on USER_FETCH_REQUESTED actions
-function* generateHash(action) {
-    console.log('gen hash called:', action);
+function* generateFieldsHash(action) {
+    console.log('gen fields hash called:', action);
    try {
       const hash = yield call(ipfs.add, Buffer.from(action.payload.fields, 'utf-8'));
 
       yield put({type: "FIELDS_HASH_SUCCEEDED", payload:{fields: JSON.parse(action.payload.fields), hash: hash[0].path}});
    } catch (e) {
-      yield put({type: "USER_FETCH_FAILED", message: e.message});
+      yield put({type: "IELDS_HASH_FAILED", message: e.message});
+   }
+}
+
+function* generateFileHash(action) {
+    console.log('gen file hash called:', action);
+   try {
+      const hash = yield call(ipfs.add, Buffer.from(action.payload.file, 'utf-8'));
+      console.log('file hash returned: ', hash)
+      yield put({type: "FILE_HASH_SUCCEEDED", payload:{hash: hash[0].path}});
+   } catch (e) {
+      yield put({type: "FILE_HASH_FAILED", message: e.message});
    }
 }
 
@@ -27,7 +38,8 @@ function* getHash(action) {
 
 function* spaceSaga() {
   yield all([
-      yield takeEvery("FIELDS_HASH_REQUESTED", generateHash),
+      yield takeEvery("FIELDS_HASH_REQUESTED", generateFieldsHash),
+      yield takeEvery("FILE_HASH_REQUESTED", generateFileHash),
       yield takeEvery("GET_FIELDS_REQUESTED", getHash)
   ])
 }

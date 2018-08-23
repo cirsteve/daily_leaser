@@ -15,6 +15,4 @@ const mapStateToProps = state => {
 }
 
 
-const SpaceContainer = drizzleConnect(Space, mapStateToProps);
-
-export default SpaceContainer
+export default drizzleConnect(Space, mapStateToProps);

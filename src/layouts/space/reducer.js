@@ -2,6 +2,7 @@ import { MS_PER_DAY } from '../../util/time'
 
 const initialState = {
     hashedContent: {},
+    fileHash: null,
     toCreate: {
         hash: null,
         fields:null
@@ -11,7 +12,8 @@ const initialState = {
         end: null
     },
     days: 0,
-    pendingHashGeneration: false
+    pendingHashGeneration: false,
+    pendingFileHashGeneration: false
 };
 
 const spaceReducer = (state = initialState, action) => {
@@ -20,6 +22,8 @@ const spaceReducer = (state = initialState, action) => {
     let reservationDates = {};
 
     switch (action.type) {
+        case 'FILE_HASH_REQUESTED':
+            return Object.assign({}, state, {pendingFileHashGeneration: true})
         case 'FIELDS_HASH_REQUESTED':
             return Object.assign({}, state, {pendingHashGeneration: true})
         case 'UPDATE_RESERVATION_DATES':
@@ -33,6 +37,8 @@ const spaceReducer = (state = initialState, action) => {
             hashedContent[action.payload.hash] = action.payload.fields;
             hashedContent = Object.assign({}, state.hashedContent, hashedContent);
             return Object.assign({}, state, {toCreate}, {hashedContent, pendingHashGeneration: false});
+        case 'FILE_HASH_SUCCEEDED':
+            return Object.assign({}, state, {fileHash: action.payload.hash, pendingFileHashGeneration: false});
         case 'GET_FIELDS_SUCCEEDED':
             hashedContent[action.payload.hash] = action.payload.fields;
             hashedContent = Object.assign({}, state.hashedContent, hashedContent);
