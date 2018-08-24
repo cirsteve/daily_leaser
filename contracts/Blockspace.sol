@@ -17,7 +17,7 @@ contract Blockspace is Packing, Pausable {
     event SpaceCreated(uint id, address owner);
     event ReservationCreated(uint spaceId, uint16 start, uint16 end, uint amtPaid, uint cost);
     event ReservationPaid(uint spaceId, uint16 start, uint paidAmt, address payee);
-    event ReservationCancelled(uint spaceId, uint16 start, uint refund, address owner);
+    event ReservationCancelled(uint spaceId, uint16 start, uint refund, address owner, address cancelledBy);
     event CreditClaimed(address claimant, uint amount);
     event RefundIssued(uint amt, address recipient);
 
@@ -127,16 +127,16 @@ contract Blockspace is Packing, Pausable {
         Space storage space = spaces[_spaceId];
         Reservation storage reservation = space.reservations[_resStart];
         uint40 reservationId = pack(_resStart, _spaceId);
-        require(reservationId == ownerReservations[msg.sender][_ownerReservationsIdx]);
-        require(reservation.owner == msg.sender);
-        ownerReservations[msg.sender][_ownerReservationsIdx] = 0;
+        require(reservationId == ownerReservations[reservation.owner][_ownerReservationsIdx]);
+        require(reservation.owner == msg.sender || owner == msg.sender);
+        ownerReservations[reservation.owner][_ownerReservationsIdx] = 0;
         updateAvailability(_spaceId, reservation.start, reservation.end, false);
         uint refundAmt = reservation.amtPaid - depositAmount;
         reservation.amtPaid = depositAmount;
-        credits[msg.sender] += refundAmt;
+        credits[reservation.owner] += refundAmt;
 
         delete space.reservations[_resStart];
-        emit ReservationCancelled(_spaceId, _resStart, refundAmt, msg.sender);
+        emit ReservationCancelled(_spaceId, _resStart, refundAmt, reservation.owner, msg.sender);
     }
 
     function claimCredit () public whenNotPaused {
