@@ -9,7 +9,7 @@ contract('Blockspace',  (accounts) => {
   //the value in the contract is greater then 0 ensuring that it was set during deployment
   it("...should be insantiated with a startEpoch greater then 0", async () => {
     let instance = await Blockspace.deployed();
-    let se = await instance.getStartEpoch.call();
+    let se = await instance.startEpoch.call();
     assert.isAbove(1*se, 1, "The startEpoch should be more then 1");
     });
 
@@ -32,7 +32,7 @@ contract('Blockspace',  (accounts) => {
   it("...should update deposit.", async () => {
     let instance = await Blockspace.deployed();
     await instance.updateDepositAmount(5, {from: accounts[0]});
-    let depositAmount = await instance.getDepositAmount.call();
+    let depositAmount = await instance.depositAmount.call();
     assert.equal(depositAmount, 5, "the deposit amount was updated to .");
     });
 
@@ -40,7 +40,7 @@ contract('Blockspace',  (accounts) => {
     const fee = 100;
     let instance = await Blockspace.deployed();
     await instance.updateDailyFee(fee, {from: accounts[0]});
-    let feeAmount = await instance.getDailyFee.call();
+    let feeAmount = await instance.dailyFee.call();
     assert.equal(feeAmount, fee, "the daily fee amount was updated");
     });
 
