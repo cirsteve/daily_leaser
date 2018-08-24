@@ -1,0 +1,2 @@
+#Re-entrancy attack
+When users cancel a reservation they are refunded any payments they have made above the deposit amount. The refund amount is based on the amtPaid, a uint on the Reservation struct. The prevent reentrancy attacts on cancellations the refund amount is determined and then the amtPaid on the reservation is set to the deposit amount so any subsequent calls to cancel the reservation cannot access any more refund.
