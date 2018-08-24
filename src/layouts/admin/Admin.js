@@ -24,6 +24,7 @@ class Admin extends Component {
 
   createSpace (hash) {
       this.createSpaceKey = this.context.drizzle.contracts.Blockspace.methods.createSpace.cacheSend(hash);
+      this.props.clearCreateHash();
   }
 
   togglePause (isPaused) {
@@ -105,7 +106,7 @@ class Admin extends Component {
                     <p><strong>Create Space</strong>:</p>
                     {fieldsForm}
                     <p>Hash: {fieldsHash}</p>
-                    <input type="button" value="Create Space" onClick={this.createSpace.bind(this, this.props.space.toCreate.hash)} />
+                    {fieldsHash ? <input type="button" value="Create Space" onClick={this.createSpace.bind(this, this.props.space.toCreate.hash)} /> : 'Generate Hash to Create Space'}
                 </div>
                 <div className={metaClass}>
                     <MetaFields />

@@ -119,3 +119,7 @@ ul li:not(:last-child) {
 .right {
   float: right;
 }
+
+h2.title {
+  margin-top: 0;
+}

@@ -19,15 +19,7 @@ const spaceFields = [
     {
         label: 'dogs',
         type: 'number'
-    },
-    {
-        label: 'lat',
-        type: 'number'
-    },
-    {
-        label: 'lon',
-        type: 'number'
-    },
+    }
 ];
 
 const styles = theme => ({

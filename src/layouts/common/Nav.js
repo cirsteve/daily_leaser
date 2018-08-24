@@ -29,7 +29,7 @@ class Nav extends Component {
     return (
       <div className="inline-divs">
         <div>
-            <h2>BlockSpace</h2>
+            <h2 className="title">BlockSpace</h2>
         </div>
         <div className="navbar navbar-right">
             {hrefs.map(l => <a key={l.label} href={l.href}>{l.label}</a>)}

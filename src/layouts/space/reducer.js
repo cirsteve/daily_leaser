@@ -31,7 +31,10 @@ const spaceReducer = (state = initialState, action) => {
             const days = (reservationDates.endDate - reservationDates.startDate) / MS_PER_DAY + 1;
             return Object.assign({}, state, {reservationDates, days})
         case 'CLEAR_TO_CREATE':
-            return Object.assign({}, state, {reservationDates})
+            return Object.assign({}, state, {reservationDates});
+        case 'CLEAR_CREATE_HASH':
+            toCreate = {hash: null, fields:null};
+            return Object.assign({}, state, {toCreate});
         case 'FIELDS_HASH_SUCCEEDED':
             toCreate = {hash: action.payload.hash, fields:action.payload.fields};
             hashedContent[action.payload.hash] = action.payload.fields;

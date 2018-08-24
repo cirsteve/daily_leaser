@@ -26,9 +26,10 @@ class Space extends Component {
       }
 
     return (
-      <div>
-        <a href={`/space/${spaceData[0]}`}>id: {spaceData[0]}</a>
-        <IpfsContent hash={spaceData[1]} />
+      <div className="space-item">
+        <a href={`/space/${spaceData[0]}`}>
+          <IpfsContent hash={spaceData[1]} />
+        </a>
       </div>
     )
   }

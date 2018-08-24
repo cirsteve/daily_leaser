@@ -13,7 +13,8 @@ const mapStateToProps = state => {
 const dispatchToProps = (dispatch) => {
     return {
         generateFieldsHash: fields => dispatch({type: 'FIELDS_HASH_REQUESTED', payload: {fields}}),
-        getFields: hash => dispatch({type: 'GET_FIELDS_REQUESTED', payload: {hash}})
+        getFields: hash => dispatch({type: 'GET_FIELDS_REQUESTED', payload: {hash}}),
+        clearCreateHash: () => dispatch({type: 'CLEAR_CREATE_HASH'})
     };
 }
 
