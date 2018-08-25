@@ -35,6 +35,8 @@ const spaceReducer = (state = initialState, action) => {
         case 'CLEAR_CREATE_HASH':
             toCreate = {hash: null, fields:null};
             return Object.assign({}, state, {toCreate});
+        case 'CLEAR_LAYOUT_DATA':
+            return Object.assign({}, state, {fileHash: null});
         case 'FIELDS_HASH_SUCCEEDED':
             toCreate = {hash: action.payload.hash, fields:action.payload.fields};
             hashedContent[action.payload.hash] = action.payload.fields;

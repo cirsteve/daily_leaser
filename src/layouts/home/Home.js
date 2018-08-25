@@ -26,7 +26,11 @@ class Home extends Component {
     if (!(this.layoutHashKey in this.props.Blockspace.layoutHash)) {
       layoutHash = "Loading Layout Hash";
     } else {
-      layoutHash = <img src={`https://ipfs.infura.io/ipfs/${this.props.Blockspace.layoutHash[this.layoutHashKey].value}`} />;
+      if (this.props.Blockspace.layoutHash[this.layoutHashKey].value) {
+        layoutHash = <img src={`https://ipfs.infura.io/ipfs/${this.props.Blockspace.layoutHash[this.layoutHashKey].value}`} />;
+      } else {
+        layoutHash = "No layout file set";
+      }
     }
 
     return (
@@ -39,18 +43,18 @@ class Home extends Component {
             <Nav />
             <h2><a href="/user">Account Details</a></h2>
             <AccountData accountIndex="0" units="ether" precision="3" />
-
-            <br/><br/>
-          </div>
-          {layoutHash}
-
-          <div className="pure-u-1-1">
+            <div className="pure-u-1-4">
 
             {spaces}
+            </div>
 
+            <div className="pure-u-3-4 right">
+              {layoutHash}
+            </div>
 
-            <br/><br/>
           </div>
+
+
 
 
         </div>

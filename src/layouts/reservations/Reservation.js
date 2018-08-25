@@ -31,7 +31,7 @@ class Reservation extends Component {
       const start = dateFromEpoch(this.props.startEpoch, res[1][0]).toDateString();
       const end = dateFromEpoch(this.props.startEpoch, res[2][0]).toDateString();
       return (
-          <div>
+          <div className="reservation-item">
             <div>
             Space: {this.props.spaceId}<br />
             Start:<br /> {start}

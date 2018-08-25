@@ -35,9 +35,11 @@ class DatePicker extends Component {
 
   updateSelection (inpt) {
       const selection = inpt[Object.keys(inpt)[0]];
+      selection.key = 'selection';
+      selection.color = null;
       const selections = [selection];
       this.setState(Object.assign({}, this.state, {selections}));
-      this.props.dispatchUpdate(inpt.selection);
+      this.props.dispatchUpdate(selection);//super hacky but calendar widgets are hard
   }
 
   onPreviewChange (newDate) {

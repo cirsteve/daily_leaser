@@ -16,7 +16,7 @@ class IpfsContent extends Component {
           ipfsData = `Loading from ipfs`;
       } else {
           let fields = this.props.hashedContent[this.props.hash];
-          ipfsData = Object.keys(fields).filter(k => fields[k]).map( k => <div key={k}>{k} : {fields[k]}</div>);
+          ipfsData = Object.keys(fields).filter(k => fields[k]).filter(k => k !== 'id').map( k => <div key={k}>{k} : {fields[k]}</div>);
       }
 
     return (

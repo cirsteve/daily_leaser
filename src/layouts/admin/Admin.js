@@ -65,6 +65,14 @@ class Admin extends Component {
         'hidden': !this.state.showMeta
     })
 
+    const createButtonClass = classname({
+        'selected': !this.state.showMeta
+    });
+
+    const metaButtonClass = classname({
+        'selected': this.state.showMeta
+    })
+
     if (!(this.pausedKey in this.props.Blockspace.paused)) {
       paused = "Loading Paused";
     } else {
@@ -80,7 +88,7 @@ class Admin extends Component {
 
           <div className="pure-u-1-1">
             <Nav />
-            <h5>Active Account</h5>
+            <h4>Active Account</h4>
             <AccountData accountIndex="0" units="ether" precision="3" />
 
             <br/><br/>
@@ -91,22 +99,23 @@ class Admin extends Component {
                 <div>
                   {paused}
                 </div>
-                <div onClick={this.showMeta.bind(this, true)}>
-                    Edit Meta Data
-                </div>
-                <div onClick={this.showMeta.bind(this, false)}>
-                    Create Space
+                <div className="nav-menu">
+                  <div className={metaButtonClass} onClick={this.showMeta.bind(this, true)}>
+                      Edit Meta Data
+                  </div>
+                  <div className={createButtonClass} onClick={this.showMeta.bind(this, false)}>
+                      Create Space
+                  </div>
                 </div>
                 <div>
                     {spaces}
                 </div>
             </div>
-            <div className="content pure-u-2-3">
+            <div className="content pure-u-3-5">
                 <div className={createClass}>
-                    <p><strong>Create Space</strong>:</p>
                     {fieldsForm}
                     <p>Hash: {fieldsHash}</p>
-                    {fieldsHash ? <input type="button" value="Create Space" onClick={this.createSpace.bind(this, this.props.space.toCreate.hash)} /> : 'Generate Hash to Create Space'}
+                    {this.props.space.toCreate.hash ? <input type="button" value="Create Space" onClick={this.createSpace.bind(this, this.props.space.toCreate.hash)} /> : 'Generate Hash to Create Space'}
                 </div>
                 <div className={metaClass}>
                     <MetaFields />

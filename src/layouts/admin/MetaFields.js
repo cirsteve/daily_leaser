@@ -29,23 +29,33 @@ class Meta extends Component {
 
   updateLayoutHash (hash) {
       this.updateLayoutHashKey = this.context.drizzle.contracts.Blockspace.methods.updateLayoutHash.cacheSend(hash);
+      this.props.clearLayoutData();
   }
 
   render() {
-    let layoutHash = '';
-    if (this.layoutHashKey in this.props.Blockspace.layoutHash) {
-      layoutHash = this.props.Blockspace.layoutHash[this.layoutHashKey].value;
+    let layoutHash = 'No Layout Set';
+    let updateLayout = 'Generating File Hash';
+    if (this.layoutHashKey in this.props.Blockspace.layoutHash &&
+      this.props.Blockspace.layoutHash[this.layoutHashKey].value) {
+      layoutHash = <img className="preview" src={`https://ipfs.infura.io/ipfs/${this.props.Blockspace.layoutHash[this.layoutHashKey].value}`} />;
     }
 
-    if (layoutHash === '') {
-      layoutHash = 'No Layout Set';
+    if (!this.props.pendingHash) {
+      if (this.props.fileHash) {
+        updateLayout = <div>
+          File uploaded to IPFS!<br />
+          {this.props.fileHash}<input type="button" value="Update Layout File" onClick={this.updateLayoutHash.bind(this, this.props.fileHash)} />
+          </div> ;
+      } else {
+        updateLayout = <div>Upload layout file to ipfs here:<Dropzone onDrop={this.onFileDrop.bind(this)}/></div>;
+      }
     }
+
     return (
 
         <div className="pure-g">
-
-
           <div className="pure-u-1-1">
+            <div>
               <div className="pure-u-1-3">
                 <h4>Deposit</h4>
                 <ContractData contract="Blockspace" method="depositAmount" /><br />
@@ -56,17 +66,18 @@ class Meta extends Component {
                 <ContractData contract="Blockspace" method="dailyFee" /><br />
                 <ContractForm contract="Blockspace" method="updateDailyFee" />
               </div>
-              <div>
-                <h4>Layout File</h4>
+            </div>
+            <div>
+              <div className="pure-u-1-3">
+                <h4>Layout Preview</h4>
                 {layoutHash}
-                <Dropzone onDrop={this.onFileDrop.bind(this)}/>
               </div>
-              <input type="button" disabled={this.props.fileHash ? false : true } value="Update Layout File" onClick={this.updateLayoutHash.bind(this, this.props.fileHash)} />
-              {this.props.fileHash}
-              {this.props.pendingHash ? 'Generating File Hash' : ''}
+              <div className="pure-u-1-3 right">
+                <h5>Update Layout</h5>
+                {updateLayout}
+              </div>
+            </div>
           </div>
-
-
         </div>
 
     )
@@ -89,7 +100,8 @@ const mapStateToProps = state => {
 const dispatchToProps = (dispatch) => {
     return {
         generateFileHash: file => dispatch({type: 'FILE_HASH_REQUESTED', payload: {file}}),
-        getFields: hash => dispatch({type: 'GET_FIELDS_REQUESTED', payload: {hash}})
+        getFields: hash => dispatch({type: 'GET_FIELDS_REQUESTED', payload: {hash}}),
+        clearLayoutData: () => dispatch({ type: 'CLEAR_LAYOUT_DATA'})
     };
 }
 
