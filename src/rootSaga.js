@@ -1,6 +1,6 @@
 import { all, fork } from 'redux-saga/effects'
 import { drizzleSagas } from 'drizzle'
-import spaceSaga from './layouts/space/saga'
+import spaceSaga from './blockspaceSaga'
 
 
 export default function* root() {

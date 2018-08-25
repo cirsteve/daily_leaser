@@ -1,5 +1,5 @@
 import { call, put, takeEvery, all } from 'redux-saga/effects'
-import ipfs from '../../ipfs';
+import ipfs from './ipfs';
 
 // worker Saga: will be fired on USER_FETCH_REQUESTED actions
 function* generateFieldsHash(action) {
@@ -9,7 +9,7 @@ function* generateFieldsHash(action) {
 
       yield put({type: "FIELDS_HASH_SUCCEEDED", payload:{fields: JSON.parse(action.payload.fields), hash: hash[0].path}});
    } catch (e) {
-      yield put({type: "IELDS_HASH_FAILED", message: e.message});
+      yield put({type: "FIELDS_HASH_FAILED", message: e.message});
    }
 }
 

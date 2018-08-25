@@ -81,6 +81,8 @@ class Admin extends Component {
         <input type="button" value="Pause Contract" onClick={this.togglePause.bind(this, false)} /> ;
     }
 
+
+
     return (
 
       <main className="container">
@@ -92,6 +94,10 @@ class Admin extends Component {
             <AccountData accountIndex="0" units="ether" precision="3" />
 
             <br/><br/>
+          </div>
+
+          <div>
+            {this.props.ipfsError ? 'IPFS is down, run it locally if possible' : ''}
           </div>
 
           <div className="pure-u-1-1">

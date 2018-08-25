@@ -1,4 +1,4 @@
-import { MS_PER_DAY } from '../../util/time'
+import { MS_PER_DAY } from './util/time'
 
 const initialState = {
     hashedContent: {},
@@ -13,7 +13,8 @@ const initialState = {
     },
     days: 0,
     pendingHashGeneration: false,
-    pendingFileHashGeneration: false
+    pendingFileHashGeneration: false,
+    ipfsError: false
 };
 
 const spaceReducer = (state = initialState, action) => {
@@ -43,11 +44,14 @@ const spaceReducer = (state = initialState, action) => {
             hashedContent = Object.assign({}, state.hashedContent, hashedContent);
             return Object.assign({}, state, {toCreate}, {hashedContent, pendingHashGeneration: false});
         case 'FILE_HASH_SUCCEEDED':
-            return Object.assign({}, state, {fileHash: action.payload.hash, pendingFileHashGeneration: false});
+            return Object.assign({}, state, {ipfsError: false, fileHash: action.payload.hash, pendingFileHashGeneration: false});
         case 'GET_FIELDS_SUCCEEDED':
             hashedContent[action.payload.hash] = action.payload.fields;
             hashedContent = Object.assign({}, state.hashedContent, hashedContent);
-            return Object.assign({}, state, {hashedContent});
+            return Object.assign({}, state, {ipfsError: false, hashedContent});
+        case 'FIELDS_HASH_FAILED':
+        case 'FILE_HASH_FAILED':
+          return Object.assign({}, this.state, {ipfsError: true})
         default:
             return state;
     }
