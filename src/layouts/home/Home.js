@@ -27,7 +27,7 @@ class Home extends Component {
       layoutHash = "Loading Layout Hash";
     } else {
       if (this.props.Blockspace.layoutHash[this.layoutHashKey].value) {
-        layoutHash = <img src={`https://ipfs.infura.io/ipfs/${this.props.Blockspace.layoutHash[this.layoutHashKey].value}`} />;
+        layoutHash = <img alt="layout file hash" src={`https://ipfs.infura.io/ipfs/${this.props.Blockspace.layoutHash[this.layoutHashKey].value}`} />;
       } else {
         layoutHash = "No layout file set";
       }

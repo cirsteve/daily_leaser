@@ -51,6 +51,8 @@ Users of the dApp can lease Spaces. To do so sign in to metamask and navigate to
 Clicking on the 'User Reservations' option on the navigation menu will bring the user to a page listing the current reservations for that user. Each reservation will include details of the reservation along with the option to pay any remaining fee or to cancel the reservation. Clicking either option for a Reservation wil launch a metamask modal, clicking 'Confirm' in the modal will publish the transaction to the blockchain.
 
 ## Known Issues
+- the shuld automatically rerender when a transaction is mined however this is not always the case. If a transaction seems to hang look at it in MetaMask, if its confirmed their refresh the page and everything will be updated, if its still submitted just wait
+
 -the default gas limit for cancelling a reservation is not sufficient, to successfully cancel a reservation increase the gas limit in the metamask transaction confirmation pop up
 rinkeby
 

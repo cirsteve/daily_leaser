@@ -1,7 +1,6 @@
 import { call, put, takeEvery, all } from 'redux-saga/effects'
 import ipfs from './ipfs';
 
-// worker Saga: will be fired on USER_FETCH_REQUESTED actions
 function* generateFieldsHash(action) {
     console.log('gen fields hash called:', action);
    try {

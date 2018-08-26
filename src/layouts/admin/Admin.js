@@ -1,8 +1,9 @@
 import React, { Component } from 'react'
-import { AccountData, ContractData, ContractForm } from 'drizzle-react-components'
+import { AccountData } from 'drizzle-react-components'
 import PropTypes from 'prop-types'
 import classname from 'classnames'
 
+import Loading from 'react-loading'
 import FieldsForm from './SpaceFields'
 import MetaFields from './MetaFields'
 import Space from '../common/Space'
@@ -92,8 +93,6 @@ class Admin extends Component {
             <Nav />
             <h4>Active Account</h4>
             <AccountData accountIndex="0" units="ether" precision="3" />
-
-            <br/><br/>
           </div>
 
           <div>
@@ -121,7 +120,11 @@ class Admin extends Component {
                 <div className={createClass}>
                     {fieldsForm}
                     <p>Hash: {fieldsHash}</p>
-                    {this.props.space.toCreate.hash ? <input type="button" value="Create Space" onClick={this.createSpace.bind(this, this.props.space.toCreate.hash)} /> : 'Generate Hash to Create Space'}
+                    {this.props.space.toCreate.hash ?
+                      <input type="button" value="Create Space" onClick={this.createSpace.bind(this, this.props.space.toCreate.hash)} /> :
+                        this.props.Blockspace.synced ?
+                          'Generate Hash to Create Space' :  <Loading type='cubes' color="gray" height={'20%'} width={'20%'} />
+}
                 </div>
                 <div className={metaClass}>
                     <MetaFields />

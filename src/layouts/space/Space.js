@@ -3,9 +3,10 @@ import { AccountData } from 'drizzle-react-components'
 import PropTypes from 'prop-types'
 
 import DatePicker from './DatePicker'
+import Loading from 'react-loading'
+
 import IpfsContent from '../common/IpfsContent'
 import Nav from '../common/Nav'
-import Reservations from '../reservations/ReservationsContainer'
 import { daysFromEpoch, MS_PER_DAY } from '../../util/time'
 
 
@@ -92,9 +93,11 @@ class Space extends Component {
                 </div>
             </div>
             <div>{reservationDays} days for {reservationCost} at a daily rate of {fee} with a minimum deposit of {deposit}</div>
-            <input type="button" value={`Pay ${deposit} Deposit to Create Reservation`} disabled={ this.props.reservationDates.startDate ? false: true } onClick={this.createReservation.bind(this, deposit)} />
-            <input type="button" value={`Pay Full ${reservationCost} to Create Reservation`} disabled={ this.props.reservationDates.startDate ? false: true } onClick={this.createReservation.bind(this, reservationCost)} />
-
+            {this.props.Blockspace.synced ?<div>
+              <input type="button" value={`Pay ${deposit} Deposit to Create Reservation`} disabled={ this.props.reservationDates.startDate ? false: true } onClick={this.createReservation.bind(this, deposit)} /><br />
+              <input type="button" value={`Pay Full ${reservationCost} to Create Reservation`} disabled={ this.props.reservationDates.startDate ? false: true } onClick={this.createReservation.bind(this, reservationCost)} />
+              </div>
+            : <Loading type='cubes' color="gray" height={'20%'} width={'20%'} />}
             { epoch === 'Loading Epoch' ? epoch : <DatePicker id={this.props.id} epoch={new Date(epoch)} /> }
 
 

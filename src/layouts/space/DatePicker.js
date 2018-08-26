@@ -3,7 +3,6 @@ import 'react-date-range/dist/theme/default.css'; // theme css file
 
 import React, { Component } from 'react'
 import { drizzleConnect } from 'drizzle-react'
-import { AccountData, ContractData, ContractForm } from 'drizzle-react-components'
 import PropTypes from 'prop-types'
 
 
@@ -19,7 +18,6 @@ class DatePicker extends Component {
       this.updateSelection = this.updateSelection.bind(this);
       this.onPreviewChange = this.onPreviewChange.bind(this);
       this.fetchAvailability = this.fetchAvailability.bind(this, this.props.id);
-      //this.updateCache = this.updateCache.bind(this)
 
       this.getAvailabilityKey = context.drizzle.contracts.Blockspace.methods.getAvailability.cacheCall(1*this.props.id, startDay, startDay + 59);
       this.cachedAvailability = [];
@@ -80,19 +78,15 @@ class DatePicker extends Component {
   }
 
   render() {
-    let availability;
     if (this.props.availability[this.getAvailabilityKey]) {
         this.updateCache(this.props.availability[this.getAvailabilityKey])
-    } else {
-         'loading Availability';
     }
     const ranges = this.state.selections.concat(this.bookedRanges);
-    console.log('bookd dates: ', this.bookedDates);
+
     return (
 
 
         <div className="pure-g">
-
 
           <div className="pure-u-1-1">
 
@@ -106,10 +100,7 @@ class DatePicker extends Component {
                 showDateDisplay={false}
                 direction={'horizontal'}
               />
-
-
-
-            <br/><br/>
+              
           </div>
 
 

@@ -144,15 +144,15 @@ h2.title {
   margin: 10px 5px;
   padding:10px 5px;
   border: 1px solid black;
-  color: white;
-  background-color: black;
+  color: black;
+  background-color: white;
 }
 
 .nav-menu > div.selected {
   cursor: default;
-  border-right: 1px solid transparent;
-  color: black;
-  background-color: white;
+
+  color: white;
+  background-color: black;
 }
 
 .content {

@@ -16,7 +16,6 @@ class Meta extends Component {
           files.forEach(file => {
               const reader = new FileReader();
               reader.onloadend = async() => {
-                  const fileAsArrayBuffer= reader.result;
                   const buffer = await Buffer.from(reader.result)
                   generateFileHash(buffer);
               }
@@ -37,7 +36,7 @@ class Meta extends Component {
     let updateLayout = 'Generating File Hash';
     if (this.layoutHashKey in this.props.Blockspace.layoutHash &&
       this.props.Blockspace.layoutHash[this.layoutHashKey].value) {
-      layoutHash = <img className="preview" src={`https://ipfs.infura.io/ipfs/${this.props.Blockspace.layoutHash[this.layoutHashKey].value}`} />;
+      layoutHash = <img className="preview" alt="layout hash file" src={`https://ipfs.infura.io/ipfs/${this.props.Blockspace.layoutHash[this.layoutHashKey].value}`} />;
     }
 
     if (!this.props.pendingHash) {

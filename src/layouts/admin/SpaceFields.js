@@ -61,19 +61,20 @@ class Fields extends Component {
 
   renderInput (inpt) {
       switch(inpt.type) {
-        case 'string':
+        case 'number':
           return <TextField
             key={inpt.label}
+            type="number"
             id={inpt.label}
             label={inpt.label}
             className={''}
             value={this.state[inpt.label]}
             onChange={this.updateField.bind(this, inpt.label)}
             margin="normal" />;
-        case 'number':
+        case 'string':
+        default:
           return <TextField
             key={inpt.label}
-            type="number"
             id={inpt.label}
             label={inpt.label}
             className={''}
