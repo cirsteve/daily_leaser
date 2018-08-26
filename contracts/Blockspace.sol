@@ -1,11 +1,13 @@
 pragma solidity ^0.4.24;
 
 import 'openzeppelin-solidity/contracts/lifecycle/Pausable.sol';
+import 'openzeppelin-solidity/contracts/math/SafeMath.sol';
 
 import './Packing.sol';
 
 /** @title Block space. */
 contract Blockspace is Packing, Pausable {
+    using SafeMath for uint;
 
     uint public depositAmount = 0;
     uint public dailyFee = 0;
@@ -114,7 +116,7 @@ contract Blockspace is Packing, Pausable {
       * @param _resStart first date of reservation used as index.
       */
     function payReservation (uint24 _spaceId, uint16 _resStart) public payable whenNotPaused {
-        spaces[_spaceId].reservations[_resStart].amtPaid += msg.value;
+        spaces[_spaceId].reservations[_resStart].amtPaid = spaces[_spaceId].reservations[_resStart].amtPaid.add(msg.value);
         emit ReservationPaid(_spaceId, _resStart, msg.value, msg.sender);
     }
 
@@ -133,7 +135,7 @@ contract Blockspace is Packing, Pausable {
         updateAvailability(_spaceId, reservation.start, reservation.end, false);
         uint refundAmt = reservation.amtPaid - depositAmount;
         reservation.amtPaid = depositAmount;
-        credits[reservation.owner] += refundAmt;
+        credits[reservation.owner] = credits[reservation.owner].add(refundAmt);
 
         delete space.reservations[_resStart];
         emit ReservationCancelled(_spaceId, _resStart, refundAmt, reservation.owner, msg.sender);
