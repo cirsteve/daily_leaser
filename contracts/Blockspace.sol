@@ -22,6 +22,7 @@ contract Blockspace is Packing, Pausable {
     event ReservationCancelled(uint spaceId, uint16 start, uint refund, address owner, address cancelledBy);
     event CreditClaimed(address claimant, uint amount);
     event RefundIssued(uint amt, address recipient);
+    event Withdraw(address to, uint amt);
 
 
     struct Reservation {
@@ -149,6 +150,12 @@ contract Blockspace is Packing, Pausable {
         emit CreditClaimed(msg.sender, creditAmt);
     }
 
+    function withdraw (uint _amt) public onlyOwner {
+      owner.transfer(_amt);
+
+      emit Withdraw(owner, _amt);
+    }
+
     /** @dev issue refund.
       * @param _amt gwei to refund.
       * @param _recipient recipient of refund.
@@ -213,16 +220,16 @@ contract Blockspace is Packing, Pausable {
       * @return availability array of bools indicating availability of space.
       */
     function getAvailability(uint24 _spaceId, uint16 _start, uint16 _end) public view returns (bool[] availability) {
-        uint16 availabilityCount = _end - _start + 1;
-        uint16 index = 0;
-        availability = new bool[](availabilityCount);
-        while (_start < _end) {
-            availability[index] = spaces[_spaceId].availability[_start];
-            _start++;
-            index++;
-        }
+      uint16 availabilityCount = _end - _start + 1;
+      uint16 index = 0;
+      availability = new bool[](availabilityCount);
+      while (_start < _end) {
+          availability[index] = spaces[_spaceId].availability[_start];
+          _start++;
+          index++;
+      }
 
-        return availability;
+      return availability;
     }
 
     /** @dev get reservations for an account
@@ -231,19 +238,23 @@ contract Blockspace is Packing, Pausable {
       * @return starts start dates of reservations.
       */
     function getReservationsForOwner (address _owner) public view returns (uint24[] resSpaceIds, uint16[] starts) {
-        uint40[] storage reservations = ownerReservations[_owner];
-        resSpaceIds = new uint24[](reservations.length);
-        starts = new uint16[](reservations.length);
-        for (uint i = 0; i < reservations.length; i++) {
-            uint40 reservationId = reservations[i];
-            (uint16 reservationStart, uint24 resSpaceId) = unpack(reservationId);
-            resSpaceIds[i] = resSpaceId;
-            starts[i] = reservationStart;
-        }
+      uint40[] storage reservations = ownerReservations[_owner];
+      resSpaceIds = new uint24[](reservations.length);
+      starts = new uint16[](reservations.length);
+      for (uint i = 0; i < reservations.length; i++) {
+          uint40 reservationId = reservations[i];
+          (uint16 reservationStart, uint24 resSpaceId) = unpack(reservationId);
+          resSpaceIds[i] = resSpaceId;
+          starts[i] = reservationStart;
+      }
     }
 
     function getCreditBalance () public view returns (uint) {
-        return credits[msg.sender];
+      return credits[msg.sender];
+    }
+
+    function getContractBalance () public view returns (uint){
+      return address(this).balance;
     }
 
  }

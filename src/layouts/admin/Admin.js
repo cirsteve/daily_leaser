@@ -15,17 +15,30 @@ class Admin extends Component {
       super(props);
       this.getSpacesKey = context.drizzle.contracts.Blockspace.methods.getSpaces.cacheCall();
       this.pausedKey = context.drizzle.contracts.Blockspace.methods.paused.cacheCall();
+      this.getContractBalanceKey = context.drizzle.contracts.Blockspace.methods.getContractBalance.cacheCall()
 
       this.createSpace = this.createSpace.bind(this);
+      this.updateWithdrawAmt = this.updateWithdrawAmt.bind(this);
+      this.withdraw = this.withdraw.bind(this);
 
       this.state = {
-          showMeta: true
+          showMeta: true,
+          withdrawAmt: 0
       };
   }
 
   createSpace (hash) {
       this.createSpaceKey = this.context.drizzle.contracts.Blockspace.methods.createSpace.cacheSend(hash);
       this.props.clearCreateHash();
+  }
+
+  withdraw () {
+      this.context.drizzle.contracts.Blockspace.methods.withdraw.cacheSend(this.state.withdrawAmt);
+      this.setState(Object.assign({}, this.state, {withdrawAmt: 0}));
+  }
+
+  updateWithdrawAmt (e) {
+    this.setState(Object.assign({}, this.state, {withdrawAmt: e.target.value}));
   }
 
   togglePause (isPaused) {
@@ -43,6 +56,7 @@ class Admin extends Component {
   render() {
     let spaces, fieldsForm, paused;
     let pendingId = 0;
+    let contractBalance = 'Loading Contract Balance';
     if (!(this.getSpacesKey in this.props.Blockspace.getSpaces)) {
       spaces = "Loading Spaces";
       fieldsForm = "Loading Form Data";
@@ -51,6 +65,10 @@ class Admin extends Component {
       pendingId = 1*spaceIds[spaceIds.length -1] + 1;
       spaces = spaceIds.map(id => <Space key={id} id={id} />);
       fieldsForm = <FieldsForm pendingId={pendingId} generateFieldsHash={this.props.generateFieldsHash}/>
+    }
+
+    if (this.getContractBalanceKey in this.props.Blockspace.getContractBalance) {
+      contractBalance = this.props.Blockspace.getContractBalance[this.getContractBalanceKey].value;
     }
 
     const fieldsHash = this.props.space.pendingHashGeneration ?
@@ -93,6 +111,11 @@ class Admin extends Component {
             <Nav />
             <h4>Active Account</h4>
             <AccountData accountIndex="0" units="ether" precision="3" />
+            <div>
+              <h4>Contract Balance: {contractBalance}</h4>
+              <input type="text" value={this.state.withdrawAmt} onChange={this.updateWithdrawAmt} /><input type="button" value="Withdraw" onClick={this.withdraw} />
+            </div>
+            <br />
           </div>
 
           <div>

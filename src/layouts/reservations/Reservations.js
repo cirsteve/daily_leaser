@@ -12,9 +12,15 @@ class Reservations extends Component {
       console.log('con', props, context)
       super(props);
       this.methods = context.drizzle.contracts.Blockspace.methods;
+      this.claimCredits = this.claimCredits.bind(this);
       this.startEpochKey = this.methods.startEpoch.cacheCall();
-      this.reservationsKey = this.methods.getReservationsForOwner.cacheCall(props.account)
+      this.reservationsKey = this.methods.getReservationsForOwner.cacheCall(props.account);
+      this.creditsKey = this.methods.getCreditBalance.cacheCall();
 
+  }
+
+  claimCredits () {
+    this.context.drizzle.contracts.Blockspace.methods.claimCredit.cacheSend();
   }
 
   formatReservations (spaceIds, resIds) {
@@ -38,11 +44,14 @@ class Reservations extends Component {
   }
 
   render() {
-    let reservations;
+    let reservations = 'Loading Reservations';
+    let credits = 'LoadingCredits';
     if (this.props.Blockspace.getReservationsForOwner[this.reservationsKey]) {
-        reservations = this.renderReservations(this.props.Blockspace.getReservationsForOwner[this.reservationsKey].value);
-    } else {
-        reservations = 'Loading Reservations'
+      reservations = this.renderReservations(this.props.Blockspace.getReservationsForOwner[this.reservationsKey].value);
+    }
+
+    if (this.props.Blockspace.getCreditBalance[this.creditsKey]) {
+      credits = this.props.Blockspace.getCreditBalance[this.creditsKey].value;
     }
 
     return (
@@ -53,6 +62,11 @@ class Reservations extends Component {
           <div className="pure-u-1-1">
             <Nav />
             <AccountData accountIndex="0" units="ether" precision="3" />
+            <div>
+            <h3>Credits</h3>
+            <div>{credits}</div>
+            <input type="button" onClick={this.claimCredits} value="Claim Credits" />
+            </div>
             <h2>Reservations</h2>
 
             {reservations}
