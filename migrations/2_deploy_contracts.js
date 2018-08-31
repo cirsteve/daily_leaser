@@ -1,5 +1,5 @@
-var Blockspace = artifacts.require("Blockspace");
+var Launcher = artifacts.require("Launcher");
 
 module.exports = function(deployer) {
-  deployer.deploy(Blockspace, new Date().getTime());
+  deployer.deploy(Launcher);
 };

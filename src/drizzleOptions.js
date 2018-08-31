@@ -1,4 +1,5 @@
 import Blockspace from './../build/contracts/Blockspace.json'
+import Launcher from './../build/contracts/Launcher.json'
 
 const drizzleOptions = {
   web3: {
@@ -9,10 +10,12 @@ const drizzleOptions = {
     }
   },
   contracts: [
-    Blockspace
+    //Blockspace,
+    Launcher
   ],
   events: {
-    Blockspace: ['SpaceCreated', 'ReservationCreated', 'ReservationPaid', 'ReservationCancelled']
+    Launcher: ['ContractLaunched'],
+    //Blockspace: ['SpaceCreated', 'ReservationCreated', 'ReservationPaid', 'ReservationCancelled']
   },
   polls: {
     accounts: 1500

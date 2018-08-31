@@ -52,8 +52,9 @@ contract Blockspace is Packing, Pausable {
     /** @dev instantiates the contract.
       * @param _startEpoch unix epoch at time contract is deployed.
       */
-    constructor (uint _startEpoch) public {
+    constructor (uint _startEpoch, address _owner) public {
         startEpoch = _startEpoch;
+        owner = _owner;
     }
 
     function updateDepositAmount(uint _deposit) public onlyOwner {

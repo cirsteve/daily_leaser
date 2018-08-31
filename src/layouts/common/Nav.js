@@ -17,12 +17,12 @@ let links = [
 class Nav extends Component {
   constructor (props, context) {
       super(props);
-      this.ownerKey = context.drizzle.contracts.Blockspace.methods.owner.cacheCall();
+      this.ownerKey = context.drizzle.contracts[props.contractAddr].methods.owner.cacheCall();
   }
 
   render() {
       let hrefs = [...links];
-      if ((this.ownerKey in this.props.Blockspace.owner) && this.props.Blockspace.owner[this.ownerKey].value === this.props.account) {
+      if ((this.ownerKey in this.props.contract.owner) && this.props.contract.owner[this.ownerKey].value === this.props.account) {
           hrefs = [...links, {label: 'Admin', href: '/admin'}];
       };
 
@@ -45,9 +45,12 @@ Nav.contextTypes = {
 
 // May still need this even with data function to refresh component on updates for this contract.
 const mapStateToProps = state => {
+  const contractAddr = state.routing.locationBeforeTransitions.pathname.split('/')[1];
+  const contract = state.contracts[contractAddr];
   return {
     account: state.accounts[0],
-    Blockspace: state.contracts.Blockspace,
+    contract,
+    contractAddr
   }
 }
 

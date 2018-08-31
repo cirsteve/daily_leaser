@@ -5,29 +5,32 @@ import { AccountData } from 'drizzle-react-components'
 import Space from '../common/Space'
 import Nav from '../common/Nav'
 
+import Blockspace from '../../../build/contracts/Blockspace.json'
+
 class Home extends Component {
   constructor (props, context) {
       super(props);
       this.contracts = context.drizzle.contracts;
-      this.getSpacesKey = this.contracts.Blockspace.methods.getSpaces.cacheCall();
-      this.layoutHashKey = this.contracts.Blockspace.methods.layoutHash.cacheCall();
+
+      this.getSpacesKey = this.contracts[this.props.contractAddr].methods.getSpaces.cacheCall();
+      this.layoutHashKey = this.contracts[this.props.contractAddr].methods.layoutHash.cacheCall();
 
   }
 
   render() {
     let spaces, layoutHash, paused;
-    if (!(this.getSpacesKey in this.props.Blockspace.getSpaces)) {
+    if (!(this.getSpacesKey in this.props.contract.getSpaces)) {
       spaces = "Loading Spaces";
     } else {
-      let spaceIds = this.props.Blockspace.getSpaces[this.getSpacesKey].value;
+      let spaceIds = this.props.contract.getSpaces[this.getSpacesKey].value;
       spaces = spaceIds.map(id => <Space key={id} id={id} />);
     }
 
-    if (!(this.layoutHashKey in this.props.Blockspace.layoutHash)) {
+    if (!(this.layoutHashKey in this.props.contract.layoutHash)) {
       layoutHash = "Loading Layout Hash";
     } else {
-      if (this.props.Blockspace.layoutHash[this.layoutHashKey].value) {
-        layoutHash = <img alt="layout file hash" src={`https://ipfs.infura.io/ipfs/${this.props.Blockspace.layoutHash[this.layoutHashKey].value}`} />;
+      if (this.props.contract.layoutHash[this.layoutHashKey]) {
+        layoutHash = <img alt="layout file hash" src={`https://ipfs.infura.io/ipfs/${this.props.contract.layoutHash[this.layoutHashKey].value}`} />;
       } else {
         layoutHash = "No layout file set";
       }

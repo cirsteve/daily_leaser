@@ -10,6 +10,8 @@ import HomeContainer from './layouts/home/HomeContainer'
 import SpaceContainer from './layouts/space/SpaceContainer'
 import AdminContainer from './layouts/admin/AdminContainer'
 import ReservationsContainer from './layouts/reservations/ReservationsContainer'
+import LauncherContainer from './layouts/launcher/LauncherContainer'
+import ContractWrapper from './layouts/common/ContractWrapper'
 import { LoadingContainer } from 'drizzle-react-components'
 
 import store from './store'
@@ -23,10 +25,11 @@ ReactDOM.render((
       <LoadingContainer>
         <Router history={history}>
           <Route path="/" component={App}>
-            <IndexRoute component={HomeContainer} />
-            <Route path="/space/:id" component={SpaceContainer} />
-            <Route path="/admin" component={AdminContainer} />
-            <Route path="/user" component={ReservationsContainer} />
+            <IndexRoute component={LauncherContainer} />
+            <Route path="/:address" component={ContractWrapper} />
+            <Route path="/:address/space/:id" component={SpaceContainer} />
+            <Route path="/:address/admin" component={AdminContainer} />
+            <Route path="/:address/user" component={ReservationsContainer} />
           </Route>
         </Router>
       </LoadingContainer>
