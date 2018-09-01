@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Router, Route, IndexRoute, browserHistory } from 'react-router'
+
+import { BrowserRouter, Route } from 'react-router-dom'
 import { syncHistoryWithStore } from 'react-router-redux'
 import { DrizzleProvider } from 'drizzle-react'
 
@@ -18,20 +19,20 @@ import store from './store'
 import drizzleOptions from './drizzleOptions'
 
 // Initialize react-router-redux.
-const history = syncHistoryWithStore(browserHistory, store)
+//const history = syncHistoryWithStore(browserHistory, store)
 
 ReactDOM.render((
     <DrizzleProvider options={drizzleOptions} store={store}>
       <LoadingContainer>
-        <Router history={history}>
-          <Route path="/" component={App}>
-            <IndexRoute component={LauncherContainer} />
-            <Route path="/:address" component={ContractWrapper} />
-            <Route path="/:address/space/:id" component={SpaceContainer} />
-            <Route path="/:address/admin" component={AdminContainer} />
-            <Route path="/:address/user" component={ReservationsContainer} />
-          </Route>
-        </Router>
+        <BrowserRouter>
+        <div>
+            <Route exact={true} path="/" component={LauncherContainer} />
+            <Route exact={true} path="/:address" component={ContractWrapper} />
+            <Route path="/:address/space/:id" component={ContractWrapper} />
+            <Route path="/:address/admin" component={ContractWrapper} />
+            <Route path="/:address/user" component={ContractWrapper} />
+            </div>
+        </BrowserRouter>
       </LoadingContainer>
     </DrizzleProvider>
   ),

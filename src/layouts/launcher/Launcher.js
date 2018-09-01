@@ -24,7 +24,7 @@ class Launcher extends Component {
     let contracts = 'Loading Contracts';
     if (this.props.Launcher.getLaunchedContracts[this.launchedContractsKey]) {
       contracts = this.props.Launcher.getLaunchedContracts[this.launchedContractsKey].value.map(
-        c=><LaunchedContract key={c} contractAddr={c} web3={this.props.web3} />);
+        c=><LaunchedContract key={c} contractAddr={c} web3={this.props.web3} account={this.props.account} />);
       if (!contracts.length) {
         contracts = 'No Contracts';
       }

@@ -5,7 +5,7 @@ import { drizzleConnect } from 'drizzle-react'
 const mapStateToProps = state => {
   return {
     account: state.accounts[0],
-    Blockspace: state.contracts.Blockspace,
+    contracts: state.contracts,
     space: state.space,
   }
 }

@@ -1,35 +1,29 @@
 import React, { Component } from 'react'
 import { drizzleConnect } from 'drizzle-react'
 import PropTypes from 'prop-types'
+import { Link } from 'react-router-dom'
 
 import IpfsContent from '../common/IpfsContent'
 
 class Space extends Component {
   constructor (props, context) {
-
       super(props);
-      this.getFields = this.getFields.bind(this);
-      this.contracts = context.drizzle.contracts;
-      this.key = this.contracts.Blockspace.methods.getSpace.cacheCall(this.props.id);
-  }
-
-  getFields (hash) {
-      this.props.getFields(hash);
+      this.key = context.drizzle.contracts[this.props.contractAddr].methods.getSpace.cacheCall(this.props.id);
   }
 
   render() {
       let spaceData;
-      if (!(this.key in this.props.Blockspace.getSpace)) {
+      if (!(this.key in this.props.contracts[this.props.contractAddr].getSpace)) {
           return `Loading from chain`;
       } else {
-          spaceData = this.props.Blockspace.getSpace[this.key].value;
+          spaceData = this.props.contracts[this.props.contractAddr].getSpace[this.key].value;
       }
 
     return (
       <div className="space-item">
-        <a href={`/space/${spaceData[0]}`}>
+        <Link to={`/${this.props.contractAddr}/space/${spaceData[0]}`}>
           <IpfsContent hash={spaceData[1]} />
-        </a>
+        </Link>
       </div>
     )
   }
@@ -42,8 +36,7 @@ Space.contextTypes = {
 // May still need this even with data function to refresh component on updates for this contract.
 const mapStateToProps = state => {
   return {
-    Blockspace: state.contracts.Blockspace,
-
+    contracts: state.contracts,
     space: state.space,
   }
 }

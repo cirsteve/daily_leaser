@@ -8,7 +8,7 @@ import Dropzone from 'react-dropzone'
 class Meta extends Component {
   constructor(props, context) {
     super(props);
-    this.layoutHashKey = context.drizzle.contracts.Blockspace.methods.layoutHash.cacheCall();
+    this.layoutHashKey = context.drizzle.contracts[props.contractAddr].methods.layoutHash.cacheCall();
   }
 
   onFileDrop (files) {
@@ -27,16 +27,16 @@ class Meta extends Component {
   }
 
   updateLayoutHash (hash) {
-      this.updateLayoutHashKey = this.context.drizzle.contracts.Blockspace.methods.updateLayoutHash.cacheSend(hash);
+      this.updateLayoutHashKey = this.context.drizzle.contracts[this.props.contractAddr].methods.updateLayoutHash.cacheSend(hash);
       this.props.clearLayoutData();
   }
 
   render() {
     let layoutHash = 'No Layout Set';
     let updateLayout = 'Generating File Hash';
-    if (this.layoutHashKey in this.props.Blockspace.layoutHash &&
-      this.props.Blockspace.layoutHash[this.layoutHashKey].value) {
-      layoutHash = <img className="preview" alt="layout hash file" src={`https://ipfs.infura.io/ipfs/${this.props.Blockspace.layoutHash[this.layoutHashKey].value}`} />;
+    if (this.layoutHashKey in this.props.contracts[this.props.contractAddr].layoutHash &&
+      this.props.contracts[this.props.contractAddr].layoutHash[this.layoutHashKey].value) {
+      layoutHash = <img className="preview" alt="layout hash file" src={`https://ipfs.infura.io/ipfs/${this.props.contracts[this.props.contractAddr].layoutHash[this.layoutHashKey].value}`} />;
     }
 
     if (!this.props.pendingHash) {
@@ -57,13 +57,13 @@ class Meta extends Component {
             <div>
               <div className="pure-u-1-3">
                 <h4>Deposit</h4>
-                <ContractData contract="Blockspace" method="depositAmount" /><br />
-                <ContractForm contract="Blockspace" method="updateDepositAmount" />
+                <ContractData contract={this.props.contractAddr} method="depositAmount" /><br />
+                <ContractForm contract={this.props.contractAddr} method="updateDepositAmount" />
               </div>
               <div className="pure-u-1-3 right">
                 <h4>Daily Fee</h4>
-                <ContractData contract="Blockspace" method="dailyFee" /><br />
-                <ContractForm contract="Blockspace" method="updateDailyFee" />
+                <ContractData contract={this.props.contractAddr} method="dailyFee" /><br />
+                <ContractForm contract={this.props.contractAddr} method="updateDailyFee" />
               </div>
             </div>
             <div>
@@ -92,7 +92,7 @@ const mapStateToProps = state => {
   return {
     fileHash: state.space.fileHash,
     pendingHash: state.space.pendingFileHashGeneration,
-    Blockspace: state.contracts.Blockspace
+    contracts: state.contracts
   }
 }
 

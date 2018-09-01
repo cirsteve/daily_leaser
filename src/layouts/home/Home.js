@@ -10,27 +10,28 @@ import Blockspace from '../../../build/contracts/Blockspace.json'
 class Home extends Component {
   constructor (props, context) {
       super(props);
+      this.contractAddr = props.match.params.address;
       this.contracts = context.drizzle.contracts;
-
-      this.getSpacesKey = this.contracts[this.props.contractAddr].methods.getSpaces.cacheCall();
-      this.layoutHashKey = this.contracts[this.props.contractAddr].methods.layoutHash.cacheCall();
+      this.getSpacesKey = this.contracts[this.contractAddr].methods.getSpaces.cacheCall();
+      this.layoutHashKey = this.contracts[this.contractAddr].methods.layoutHash.cacheCall();
+      this.ownerKey = this.contracts[this.contractAddr].methods.owner.cacheCall();
 
   }
 
   render() {
     let spaces, layoutHash, paused;
-    if (!(this.getSpacesKey in this.props.contract.getSpaces)) {
+    if (!(this.getSpacesKey in this.props.contracts[this.contractAddr].getSpaces)) {
       spaces = "Loading Spaces";
     } else {
-      let spaceIds = this.props.contract.getSpaces[this.getSpacesKey].value;
-      spaces = spaceIds.map(id => <Space key={id} id={id} />);
+      let spaceIds = this.props.contracts[this.contractAddr].getSpaces[this.getSpacesKey].value;
+      spaces = spaceIds.length ? spaceIds.map(id => <Space key={id} id={id} contractAddr={this.contractAddr} />) : 'No spaces created';
     }
 
-    if (!(this.layoutHashKey in this.props.contract.layoutHash)) {
+    if (!(this.layoutHashKey in this.props.contracts[this.contractAddr].layoutHash)) {
       layoutHash = "Loading Layout Hash";
     } else {
-      if (this.props.contract.layoutHash[this.layoutHashKey]) {
-        layoutHash = <img alt="layout file hash" src={`https://ipfs.infura.io/ipfs/${this.props.contract.layoutHash[this.layoutHashKey].value}`} />;
+      if (this.props.contracts[this.contractAddr].layoutHash[this.layoutHashKey]) {
+        layoutHash = <img alt="layout file hash" src={`https://ipfs.infura.io/ipfs/${this.props.contracts[this.contractAddr].layoutHash[this.layoutHashKey].value}`} />;
       } else {
         layoutHash = "No layout file set";
       }
@@ -43,7 +44,7 @@ class Home extends Component {
 
           <div className="pure-u-1-1">
           {paused}
-            <Nav />
+          <Nav contractAddr={this.contractAddr} ownerKey={this.ownerKey}/>
             <h2><a href="/user">Account Details</a></h2>
             <AccountData accountIndex="0" units="ether" precision="3" />
             <div className="pure-u-1-4">

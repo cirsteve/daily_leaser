@@ -13,36 +13,38 @@ import { daysFromEpoch, MS_PER_DAY } from '../../util/time'
 
 class Space extends Component {
   constructor (props, context) {
-      console.log('con Space', props, context, props.accounts[0])
       super(props);
-      this.createReservation = this.createReservation.bind(this, props.id);
-      this.methods = context.drizzle.contracts.Blockspace.methods;
+      this.id = props.match.params.id;
+      this.contractAddr = props.match.params.address;
+      this.createReservation = this.createReservation.bind(this, this.id);
+      this.methods = context.drizzle.contracts[this.contractAddr].methods;
 
-      this.getSpaceKey = this.methods.getSpace.cacheCall(props.id);
+      this.getSpaceKey = this.methods.getSpace.cacheCall(this.id);
       this.depositKey = this.methods.depositAmount.cacheCall();
       this.dailyFeeKey = this.methods.dailyFee.cacheCall();
       this.startEpochKey = this.methods.startEpoch.cacheCall();
-      this.getAvailabilityKey = this.methods.getAvailability.cacheCall(props.id, 0, 50);
+      this.ownerKey = this.methods.owner.cacheCall();
+      this.getAvailabilityKey = this.methods.getAvailability.cacheCall(this.id, 0, 50);
 
       this.availability = [];
   }
 
   getContractValues () {
-    const bs = this.props.Blockspace;
+    const contract = this.props.contracts[this.contractAddr];
     return {
-        deposit: bs.depositAmount[this.depositKey] ?
-            bs.depositAmount[this.depositKey].value : 'Loading Deposit',
-        space: bs.getSpace[this.getSpaceKey] ?
-            <IpfsContent hash={this.props.Blockspace.getSpace[this.getSpaceKey].value[1]} /> : 'Loading Space',
-        fee: bs.dailyFee[this.dailyFeeKey] ?
-            bs.dailyFee[this.dailyFeeKey].value : 'Loading Fee',
-        epoch: bs.startEpoch[this.startEpochKey] ?
-            new Date(1*bs.startEpoch[this.startEpochKey].value).toString() : 'Loading Epoch'
+        deposit: contract.depositAmount[this.depositKey] ?
+            contract.depositAmount[this.depositKey].value : 'Loading Deposit',
+        space: contract.getSpace[this.getSpaceKey] ?
+            <IpfsContent hash={contract.getSpace[this.getSpaceKey].value[1]} /> : 'Loading Space',
+        fee: contract.dailyFee[this.dailyFeeKey] ?
+            contract.dailyFee[this.dailyFeeKey].value : 'Loading Fee',
+        epoch: contract.startEpoch[this.startEpochKey] ?
+            new Date(1*contract.startEpoch[this.startEpochKey].value).toString() : 'Loading Epoch'
     }
   }
 
   createReservation (id, value) {
-      const epoch = new Date(1*this.props.Blockspace.startEpoch[this.startEpochKey].value);
+      const epoch = new Date(1*this.props.contracts[this.contractAddr].startEpoch[this.startEpochKey].value);
       const start = daysFromEpoch(epoch, this.props.reservationDates.startDate);
       const end = daysFromEpoch(epoch, this.props.reservationDates.endDate);
       this.methods.createReservation.cacheSend(
@@ -68,7 +70,7 @@ class Space extends Component {
         <div className="pure-g">
 
           <div className="pure-u-1-1">
-            <Nav />
+            <Nav contractAddr={this.contractAddr} ownerKey={this.ownerKey} />
             <h2>Active Account</h2>
             <AccountData accountIndex="0" units="ether" precision="3" />
 
@@ -93,12 +95,12 @@ class Space extends Component {
                 </div>
             </div>
             <div>{reservationDays} days for {reservationCost} at a daily rate of {fee} with a minimum deposit of {deposit}</div>
-            {this.props.Blockspace.synced ?<div>
+            {this.props.contracts[this.contractAddr].synced ?<div>
               <input type="button" value={`Pay ${deposit} Deposit to Create Reservation`} disabled={ this.props.reservationDates.startDate ? false: true } onClick={this.createReservation.bind(this, deposit)} /><br />
               <input type="button" value={`Pay Full ${reservationCost} to Create Reservation`} disabled={ this.props.reservationDates.startDate ? false: true } onClick={this.createReservation.bind(this, reservationCost)} />
               </div>
             : <Loading type='cubes' color="gray" height={'20%'} width={'20%'} />}
-            { epoch === 'Loading Epoch' ? epoch : <DatePicker id={this.props.id} epoch={new Date(epoch)} /> }
+            { epoch === 'Loading Epoch' ? epoch : <DatePicker id={this.id} epoch={new Date(epoch)} /> }
 
 
             {reservations}

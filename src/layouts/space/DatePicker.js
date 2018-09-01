@@ -4,6 +4,7 @@ import 'react-date-range/dist/theme/default.css'; // theme css file
 import React, { Component } from 'react'
 import { drizzleConnect } from 'drizzle-react'
 import PropTypes from 'prop-types'
+import { withRouter } from 'react-router-dom'
 
 
 import { DateRange } from 'react-date-range'
@@ -13,13 +14,15 @@ class DatePicker extends Component {
 
   constructor(props, context) {
       super(props)
+      this.id = props.match.params.id;
+      this.contractAddr = props.match.params.address;
       this.today = new Date()
       const startDay = daysFromEpoch(this.props.epoch, this.today);
       this.updateSelection = this.updateSelection.bind(this);
       this.onPreviewChange = this.onPreviewChange.bind(this);
-      this.fetchAvailability = this.fetchAvailability.bind(this, this.props.id);
+      this.fetchAvailability = this.fetchAvailability.bind(this, this.id);
 
-      this.getAvailabilityKey = context.drizzle.contracts.Blockspace.methods.getAvailability.cacheCall(1*this.props.id, startDay, startDay + 59);
+      this.getAvailabilityKey = context.drizzle.contracts[this.contractAddr].methods.getAvailability.cacheCall(1*this.id, startDay, startDay + 59);
       this.cachedAvailability = [];
       this.bookedDates = [];
       this.bookedRanges = [];
@@ -47,7 +50,7 @@ class DatePicker extends Component {
 
   fetchAvailability (id, day) {
       if (day < 0) day = 0;
-      this.getAvailabilityKey = this.context.drizzle.contracts.Blockspace.methods.getAvailability.cacheCall(1*id, day, day + 59);
+      this.getAvailabilityKey = this.context.drizzle.contracts[this.contractAddr].methods.getAvailability.cacheCall(1*id, day, day + 59);
   }
 
   updateCache (update) {
@@ -78,8 +81,8 @@ class DatePicker extends Component {
   }
 
   render() {
-    if (this.props.availability[this.getAvailabilityKey]) {
-        this.updateCache(this.props.availability[this.getAvailabilityKey])
+    if (this.props.contracts[this.contractAddr].getAvailability[this.getAvailabilityKey]) {
+        this.updateCache(this.props.contracts[this.contractAddr].getAvailability[this.getAvailabilityKey])
     }
     const ranges = this.state.selections.concat(this.bookedRanges);
 
@@ -100,7 +103,7 @@ class DatePicker extends Component {
                 showDateDisplay={false}
                 direction={'horizontal'}
               />
-              
+
           </div>
 
 
@@ -116,9 +119,7 @@ DatePicker.contextTypes = {
 // May still need this even with data function to refresh component on updates for this contract.
 const mapStateToProps = state => {
   return {
-    availability: state.contracts.Blockspace.getAvailability,
-    id: state.routing.locationBeforeTransitions.pathname.split('/')[2],
-
+    contracts: state.contracts,
   }
 }
 
@@ -128,4 +129,4 @@ const dispatchToProps = dispatch => {
     }
 }
 
-export default drizzleConnect(DatePicker, mapStateToProps, dispatchToProps);
+export default withRouter(drizzleConnect(DatePicker, mapStateToProps, dispatchToProps));

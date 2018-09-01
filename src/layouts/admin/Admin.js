@@ -13,9 +13,12 @@ class Admin extends Component {
   constructor (props, context) {
       console.log('con', props, context)
       super(props);
-      this.getSpacesKey = context.drizzle.contracts.Blockspace.methods.getSpaces.cacheCall();
-      this.pausedKey = context.drizzle.contracts.Blockspace.methods.paused.cacheCall();
-      this.getContractBalanceKey = context.drizzle.contracts.Blockspace.methods.getContractBalance.cacheCall()
+      this.contractAddr = props.contractAddr;
+      this.contract = context.drizzle.contracts[this.contractAddr].methods;
+      this.getSpacesKey = this.contract.getSpaces.cacheCall();
+      this.pausedKey = this.contract.paused.cacheCall();
+      this.getContractBalanceKey = this.contract.getContractBalance.cacheCall();
+      this.ownerKey = this.contract.owner.cacheCall();
 
       this.createSpace = this.createSpace.bind(this);
       this.updateWithdrawAmt = this.updateWithdrawAmt.bind(this);
@@ -28,7 +31,8 @@ class Admin extends Component {
   }
 
   createSpace (hash) {
-      this.createSpaceKey = this.context.drizzle.contracts.Blockspace.methods.createSpace.cacheSend(hash);
+      this.createSpaceKey = this.context.drizzle.contracts[this.props.contractAddr].methods.createSpace.cacheSend(hash);
+      console.log('creating spake key', this.createSpaceKey);
       this.props.clearCreateHash();
   }
 
@@ -57,18 +61,18 @@ class Admin extends Component {
     let spaces, fieldsForm, paused;
     let pendingId = 0;
     let contractBalance = 'Loading Contract Balance';
-    if (!(this.getSpacesKey in this.props.Blockspace.getSpaces)) {
+    if (!(this.getSpacesKey in this.props.contracts[this.contractAddr].getSpaces)) {
       spaces = "Loading Spaces";
       fieldsForm = "Loading Form Data";
     } else {
-      let spaceIds = this.props.Blockspace.getSpaces[this.getSpacesKey].value;
+      let spaceIds = this.props.contracts[this.contractAddr].getSpaces[this.getSpacesKey].value;
       pendingId = 1*spaceIds[spaceIds.length -1] + 1;
-      spaces = spaceIds.map(id => <Space key={id} id={id} />);
+      spaces = spaceIds.map(id => <Space key={id} id={id} contractAddr={this.contractAddr}/>);
       fieldsForm = <FieldsForm pendingId={pendingId} generateFieldsHash={this.props.generateFieldsHash}/>
     }
 
-    if (this.getContractBalanceKey in this.props.Blockspace.getContractBalance) {
-      contractBalance = this.props.Blockspace.getContractBalance[this.getContractBalanceKey].value;
+    if (this.getContractBalanceKey in this.props.contracts[this.contractAddr].getContractBalance) {
+      contractBalance = this.props.contracts[this.contractAddr].getContractBalance[this.getContractBalanceKey].value;
     }
 
     const fieldsHash = this.props.space.pendingHashGeneration ?
@@ -92,10 +96,10 @@ class Admin extends Component {
         'selected': this.state.showMeta
     })
 
-    if (!(this.pausedKey in this.props.Blockspace.paused)) {
+    if (!(this.pausedKey in this.props.contracts[this.contractAddr].paused)) {
       paused = "Loading Paused";
     } else {
-      paused = this.props.Blockspace.paused[this.pausedKey].value ?
+      paused = this.props.contracts[this.contractAddr].paused[this.pausedKey].value ?
         <input type="button" value="Unpause Contract" onClick={this.togglePause.bind(this, true)} /> :
         <input type="button" value="Pause Contract" onClick={this.togglePause.bind(this, false)} /> ;
     }
@@ -108,7 +112,7 @@ class Admin extends Component {
         <div className="pure-g">
 
           <div className="pure-u-1-1">
-            <Nav />
+            <Nav contractAddr={this.contractAddr} ownerKey={this.ownerKey} />
             <h4>Active Account</h4>
             <AccountData accountIndex="0" units="ether" precision="3" />
             <div>
@@ -145,12 +149,12 @@ class Admin extends Component {
                     <p>Hash: {fieldsHash}</p>
                     {this.props.space.toCreate.hash ?
                       <input type="button" value="Create Space" onClick={this.createSpace.bind(this, this.props.space.toCreate.hash)} /> :
-                        this.props.Blockspace.synced ?
+                        this.props.contracts[this.contractAddr].synced ?
                           'Generate Hash to Create Space' :  <Loading type='cubes' color="gray" height={'20%'} width={'20%'} />
 }
                 </div>
                 <div className={metaClass}>
-                    <MetaFields />
+                    <MetaFields contractAddr={this.contractAddr}/>
                 </div>
             </div>
           </div>

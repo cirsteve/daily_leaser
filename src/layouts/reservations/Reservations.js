@@ -11,20 +11,22 @@ class Reservations extends Component {
   constructor (props, context) {
       console.log('con', props, context)
       super(props);
-      this.methods = context.drizzle.contracts.Blockspace.methods;
+      this.contractAddr = props.match.params.address;
+      this.methods = context.drizzle.contracts[this.contractAddr].methods;
       this.claimCredits = this.claimCredits.bind(this);
       this.startEpochKey = this.methods.startEpoch.cacheCall();
       this.reservationsKey = this.methods.getReservationsForOwner.cacheCall(props.account);
       this.creditsKey = this.methods.getCreditBalance.cacheCall();
+      this.ownerKey = this.methods.owner.cacheCall();
 
   }
 
   claimCredits () {
-    this.context.drizzle.contracts.Blockspace.methods.claimCredit.cacheSend();
+    this.context.drizzle.contracts[this.contractAddr].methods.claimCredit.cacheSend();
   }
 
   formatReservations (spaceIds, resIds) {
-    let startEpoch = 1*this.props.Blockspace.startEpoch[this.startEpochKey].value;
+    let startEpoch = 1*this.props.contracts[this.contractAddr].startEpoch[this.startEpochKey].value;
       return spaceIds.map((sId, i) => [sId, resIds[i], i])
         //.filter(r => 1*r[0] * r[1])
         .map((r, i) => <Reservation key={r[0]+r[1]} spaceId={r[0]} resId={r[1]} startEpoch={startEpoch} arrayIdx={i} />);
@@ -46,12 +48,12 @@ class Reservations extends Component {
   render() {
     let reservations = 'Loading Reservations';
     let credits = 'LoadingCredits';
-    if (this.props.Blockspace.getReservationsForOwner[this.reservationsKey]) {
-      reservations = this.renderReservations(this.props.Blockspace.getReservationsForOwner[this.reservationsKey].value);
+    if (this.props.contracts[this.contractAddr].getReservationsForOwner[this.reservationsKey]) {
+      reservations = this.renderReservations(this.props.contracts[this.contractAddr].getReservationsForOwner[this.reservationsKey].value);
     }
 
-    if (this.props.Blockspace.getCreditBalance[this.creditsKey]) {
-      credits = this.props.Blockspace.getCreditBalance[this.creditsKey].value;
+    if (this.props.contracts[this.contractAddr].getCreditBalance[this.creditsKey]) {
+      credits = this.props.contracts[this.contractAddr].getCreditBalance[this.creditsKey].value;
     }
 
     return (
@@ -60,7 +62,7 @@ class Reservations extends Component {
         <div className="pure-g">
 
           <div className="pure-u-1-1">
-            <Nav />
+            <Nav  contractAddr={this.contractAddr} ownerKey={this.ownerKey} />
             <AccountData accountIndex="0" units="ether" precision="3" />
             <div>
             <h3>Credits</h3>

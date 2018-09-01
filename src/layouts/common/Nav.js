@@ -1,38 +1,34 @@
 import React, { Component } from 'react'
 import { drizzleConnect } from 'drizzle-react'
-
+import { Link } from 'react-router-dom'
 import PropTypes from 'prop-types'
 
 let links = [
     {
         label: 'Home',
-        href: '/'
+        href: ''
     },
     {
         label: 'User Reservations',
-        href: '/user'
+        href: 'user'
     }
 ]
 
 class Nav extends Component {
-  constructor (props, context) {
-      super(props);
-      this.ownerKey = context.drizzle.contracts[props.contractAddr].methods.owner.cacheCall();
-  }
-
   render() {
       let hrefs = [...links];
-      if ((this.ownerKey in this.props.contract.owner) && this.props.contract.owner[this.ownerKey].value === this.props.account) {
-          hrefs = [...links, {label: 'Admin', href: '/admin'}];
+      if ((this.props.ownerKey in this.props.contracts[this.props.contractAddr].owner) &&
+        this.props.contracts[this.props.contractAddr].owner[this.props.ownerKey].value === this.props.account) {
+          hrefs = [...links, {label: 'Admin', href: 'admin'}];
       };
 
     return (
       <div className="inline-divs">
         <div>
-            <h2 className="title">BlockSpace</h2>
+            <Link to="/"><h2 className="title">BlockSpace</h2></Link>
         </div>
         <div className="navbar navbar-right">
-            {hrefs.map(l => <a key={l.label} href={l.href}>{l.label}</a>)}
+            {hrefs.map(l => <Link key={l.label} to={`/${this.props.contractAddr}/${l.href}`}>{l.label}</Link>)}
         </div>
       </div>
     )
@@ -45,12 +41,9 @@ Nav.contextTypes = {
 
 // May still need this even with data function to refresh component on updates for this contract.
 const mapStateToProps = state => {
-  const contractAddr = state.routing.locationBeforeTransitions.pathname.split('/')[1];
-  const contract = state.contracts[contractAddr];
   return {
     account: state.accounts[0],
-    contract,
-    contractAddr
+    contracts:  state.contracts
   }
 }
 
