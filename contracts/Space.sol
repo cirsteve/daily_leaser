@@ -31,8 +31,9 @@ contract Space is Packing, Pausable {
     /** @dev instantiates the contract.
       * @param _spaceLimit the number of spaces available
       */
-    constructor (uint16 _spaceLimit) public {
+    constructor (uint16 _spaceLimit, address _owner) public {
         spaceLimit = _spaceLimit;
+        owner = _owner;
     }
 
     function updateDepositAmount(uint _deposit) public onlyOwner {

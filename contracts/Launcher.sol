@@ -1,25 +1,40 @@
 pragma solidity ^0.4.24;
 
 import 'openzeppelin-solidity/contracts/lifecycle/Pausable.sol';
-import 'openzeppelin-solidity/contracts/math/SafeMath.sol';
 
 
 import './Blockspace.sol';
+import './Space.sol';
 
 /** @title Block space. */
 contract Launcher is Pausable {
-  address[] launchedContracts;
+  address[] launchedBlockspaces;
+  address[] launchedSpaces;
 
-  event ContractLaunched(address addr, address owner);
 
-  function launchContract (uint startEpoch) public {
-    Blockspace newContract = new Blockspace(startEpoch, msg.sender);
-    launchedContracts.push(newContract);
+  event BlockspaceLaunched(address addr, address owner);
+  event SpaceLaunched(address addr, address owner);
 
-    emit ContractLaunched(newContract, msg.sender);
+
+  function launchBlockspace (uint _startEpoch) public {
+    Blockspace newContract = new Blockspace(_startEpoch, msg.sender);
+    launchedBlockspaces.push(newContract);
+
+    emit BlockspaceLaunched(newContract, msg.sender);
   }
 
-  function getLaunchedContracts () public view returns(address[]) {
-    return launchedContracts;
+  function launchSpace (uint16 _spaceCount) public {
+    Space newContract = new Space(_spaceCount, msg.sender);
+    launchedSpaces.push(newContract);
+
+    emit SpaceLaunched(newContract, msg.sender);
+  }
+
+  function getLaunchedBlockspaces () public view returns(address[]) {
+    return launchedBlockspaces;
+  }
+
+  function getLaunchedSpaces () public view returns(address[]) {
+    return launchedSpaces;
   }
 }
