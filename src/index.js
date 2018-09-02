@@ -27,10 +27,10 @@ ReactDOM.render((
         <BrowserRouter>
         <div>
             <Route exact={true} path="/" component={LauncherContainer} />
-            <Route exact={true} path="/:address" component={ContractWrapper} />
-            <Route path="/:address/space/:id" component={ContractWrapper} />
-            <Route path="/:address/admin" component={ContractWrapper} />
-            <Route path="/:address/user" component={ContractWrapper} />
+            <Route exact={true} path="/:site/:address" component={ContractWrapper} />
+            <Route path="/:site/:address/space/:id" component={ContractWrapper} />
+            <Route path="/:site/:address/admin" component={ContractWrapper} />
+            <Route path="/:site/:address/user" component={ContractWrapper} />
             </div>
         </BrowserRouter>
       </LoadingContainer>

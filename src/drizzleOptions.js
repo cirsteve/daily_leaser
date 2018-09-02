@@ -10,12 +10,10 @@ const drizzleOptions = {
     }
   },
   contracts: [
-    //Blockspace,
     Launcher
   ],
   events: {
-    Launcher: ['ContractLaunched'],
-    //Blockspace: ['SpaceCreated', 'ReservationCreated', 'ReservationPaid', 'ReservationCancelled']
+    Launcher: ['BlockspaceLaunched', 'SpaceLaunched'],
   },
   polls: {
     accounts: 1500

@@ -2,13 +2,13 @@ import React, { Component } from 'react'
 import { drizzleConnect } from 'drizzle-react'
 import PropTypes from 'prop-types'
 
-import IpfsContent from '../common/IpfsContent'
-
 import Blockspace from '../../../build/contracts/Blockspace.json'
+import Space from '../../../build/contracts/Space.json'
+
 
 import Home from '../home/HomeContainer'
 import Admin from '../admin/AdminContainer'
-import Space from '../space/SpaceContainer'
+import SpaceContainer from '../space/SpaceContainer'
 import User from '../reservations/ReservationsContainer'
 
 class ContractWrapper extends Component {
@@ -16,11 +16,15 @@ class ContractWrapper extends Component {
 
       super(props);
       this.contractAddr = props.match.params.address;
-      this.page = props.match.path.split('/')[2];
+      this.site = props.match.path.split('/')[2];
+      this.page = props.match.path.split('/')[3];
       if (!context.drizzle.contracts[this.props.contractAddr]) {
         context.drizzle.addContract({
           contractName: this.contractAddr,
-          web3Contract: new this.props.web3.eth.Contract(Blockspace.abi, this.contractAddr, {from:this.props.account, gas: 2626549, gasPrice: 5})
+          web3Contract: new this.props.web3.eth.Contract(
+            this.site === 'spaces' ? Space.abi : Blockspace.abi,
+            this.contractAddr,
+            {from:this.props.account, gas: 2626549, gasPrice: 5})
         })
       }
   }
@@ -30,7 +34,7 @@ class ContractWrapper extends Component {
       case 'admin':
         return <Admin contractAddr={this.contractAddr} />;
       case 'space':
-        return <Space contractAddr={this.contractAddr} />;
+        return <SpaceContainer contractAddr={this.contractAddr} />;
       case 'user':
         return <User contractAddr={this.contractAddr} />;
       default:

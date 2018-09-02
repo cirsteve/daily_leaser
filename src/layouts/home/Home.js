@@ -11,10 +11,10 @@ class Home extends Component {
   constructor (props, context) {
       super(props);
       this.contractAddr = props.match.params.address;
-      this.contracts = context.drizzle.contracts;
-      this.getSpacesKey = this.contracts[this.contractAddr].methods.getSpaces.cacheCall();
-      this.layoutHashKey = this.contracts[this.contractAddr].methods.layoutHash.cacheCall();
-      this.ownerKey = this.contracts[this.contractAddr].methods.owner.cacheCall();
+      this.contract = context.drizzle.contracts[this.contractAddr].methods;
+      this.getSpacesKey = this.contract.getSpaces.cacheCall();
+      this.layoutHashKey = this.contract.layoutHash.cacheCall();
+      this.ownerKey = this.contract.owner.cacheCall();
 
   }
 

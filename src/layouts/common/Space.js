@@ -21,7 +21,7 @@ class Space extends Component {
 
     return (
       <div className="space-item">
-        <Link to={`/${this.props.contractAddr}/space/${spaceData[0]}`}>
+        <Link to={`/dailyspaces/${this.props.contractAddr}/space/${spaceData[0]}`}>
           <IpfsContent hash={spaceData[1]} />
         </Link>
       </div>
