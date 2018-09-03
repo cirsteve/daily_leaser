@@ -1,5 +1,5 @@
 import { call, put, takeEvery, all } from 'redux-saga/effects'
-import ipfs from './ipfs';
+import ipfs from '../ipfs';
 
 function* generateFieldsHash(action) {
    try {

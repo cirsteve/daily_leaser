@@ -7,10 +7,6 @@ import { DrizzleProvider } from 'drizzle-react'
 
 // Layouts
 import App from './App'
-import HomeContainer from './layouts/home/HomeContainer'
-import SpaceContainer from './layouts/space/SpaceContainer'
-import AdminContainer from './layouts/admin/AdminContainer'
-import ReservationsContainer from './layouts/reservations/ReservationsContainer'
 import LauncherContainer from './layouts/launcher/LauncherContainer'
 import ContractWrapper from './layouts/common/ContractWrapper'
 import { LoadingContainer } from 'drizzle-react-components'

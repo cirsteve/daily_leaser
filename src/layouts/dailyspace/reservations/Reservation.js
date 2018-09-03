@@ -3,7 +3,7 @@ import { drizzleConnect } from 'drizzle-react'
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 
-import { dateFromEpoch } from '../../util/time'
+import { dateFromEpoch } from '../../../util/time'
 
 class Reservation extends Component {
   constructor (props, context) {

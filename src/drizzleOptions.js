@@ -1,4 +1,3 @@
-import Blockspace from './../build/contracts/Blockspace.json'
 import Launcher from './../build/contracts/Launcher.json'
 
 const drizzleOptions = {

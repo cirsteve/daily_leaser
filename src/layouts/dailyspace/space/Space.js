@@ -7,7 +7,7 @@ import Loading from 'react-loading'
 
 import IpfsContent from '../common/IpfsContent'
 import Nav from '../common/Nav'
-import { daysFromEpoch, MS_PER_DAY } from '../../util/time'
+import { daysFromEpoch, MS_PER_DAY } from '../../../util/time'
 
 
 

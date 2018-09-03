@@ -1,4 +1,4 @@
-import { MS_PER_DAY } from './util/time'
+import { MS_PER_DAY } from '../util/time'
 
 const initialState = {
     hashedContent: {},

@@ -2,8 +2,10 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
 import getWeb3 from '../../util/web3/getWeb3'
+import Loading from 'react-loading'
 
 import { AccountData } from 'drizzle-react-components'
+import Address from '../common/Address'
 
 class Launcher extends Component {
   constructor (props, context) {
@@ -23,17 +25,19 @@ class Launcher extends Component {
     this.context.drizzle.contracts.Launcher.methods.launchBlockspace.cacheSend(new Date().getTime());
   }
 
-  launchSpace (spaceCount) {
-    this.context.drizzle.contracts.Launcher.methods.launchSpace.cacheSend(1*spaceCount);
+  launchSpace (count) {
+    this.context.drizzle.contracts.Launcher.methods.launchSpace.cacheSend(1*count);
+    this.setState({spaceCount:0})
   }
 
   render() {
     let blockspaces = 'Loading Blockspaces';
     let spaces = 'Loading Spaces';
+    let isSynced = this.props.Launcher.synced;
 
     if (this.props.Launcher.getLaunchedBlockspaces[this.blockspacesKey]) {
       blockspaces = this.props.Launcher.getLaunchedBlockspaces[this.blockspacesKey].value.map(
-        c=><Link key={c} to={`/dailyspaces/${c}`}>{c}</Link>);
+        c=><div key={c}><Link to={`/dailyspaces/${c}`}><Address address={c} chars={5} /></Link></div>);
       if (!blockspaces.length) {
         blockspaces = 'No Blockspaces';
       }
@@ -41,7 +45,7 @@ class Launcher extends Component {
 
     if (this.props.Launcher.getLaunchedSpaces[this.spacesKey]) {
       spaces = this.props.Launcher.getLaunchedSpaces[this.spacesKey].value.map(
-        c=><Link key={c} to={`/spaces/${c}`}>{c}</Link>);
+        c=><div key={c}><Link to={`/spaces/${c}`}><Address address={c} chars={5}/></Link></div>);
       if (!spaces.length) {
         spaces = 'No Spaces';
       }
@@ -56,13 +60,17 @@ class Launcher extends Component {
             <AccountData accountIndex="0" units="ether" precision="3" />
 
             <div className="pure-u-1-2">
-              <input type="button" onClick={this.launchBlockspace} value="Launch Blockspace" />
+              {isSynced ?
+                <input type="button" onClick={this.launchBlockspace} value="Launch Blockspace" /> :
+                <Loading type='cubes' color="gray" height={'20%'} width={'20%'} />}
               <h2>Blockspaces</h2>
 
               {blockspaces}
             </div>
             <div className="pure-u-1-2">
-              <input type="button" onClick={this.launchSpace.bind(this, this.state.spaceCount)} value="Launch Space" />
+              { isSynced ?
+                <input type="button" onClick={this.launchSpace.bind(this, this.state.spaceCount)} value="Launch Space" /> :
+                <Loading type='cubes' color="gray" height={'20%'} width={'20%'} /> }
               <input type="text" value={this.state.spaceCount} onChange={e => this.setState({spaceCount:e.target.value})} />
               <h2>Spaces</h2>
 

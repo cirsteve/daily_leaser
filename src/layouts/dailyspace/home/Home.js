@@ -5,8 +5,6 @@ import { AccountData } from 'drizzle-react-components'
 import Space from '../common/Space'
 import Nav from '../common/Nav'
 
-import Blockspace from '../../../build/contracts/Blockspace.json'
-
 class Home extends Component {
   constructor (props, context) {
       super(props);

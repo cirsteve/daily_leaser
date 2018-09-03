@@ -8,7 +8,7 @@ import { withRouter } from 'react-router-dom'
 
 
 import { DateRange } from 'react-date-range'
-import { daysFromEpoch, dateFromEpoch } from '../../util/time'
+import { daysFromEpoch, dateFromEpoch } from '../../../util/time'
 
 class DatePicker extends Component {
 

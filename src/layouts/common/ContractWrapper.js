@@ -6,39 +6,58 @@ import Blockspace from '../../../build/contracts/Blockspace.json'
 import Space from '../../../build/contracts/Space.json'
 
 
-import Home from '../home/HomeContainer'
-import Admin from '../admin/AdminContainer'
-import SpaceContainer from '../space/SpaceContainer'
-import User from '../reservations/ReservationsContainer'
+import DailyspaceHome from '../dailyspace/home/HomeContainer'
+import DailyspaceAdmin from '../dailyspace/admin/AdminContainer'
+import DailyspaceSpaceContainer from '../dailyspace/space/SpaceContainer'
+import DailyspaceUser from '../dailyspace/reservations/ReservationsContainer'
+
+import SpaceHome from '../space/home/HomeContainer'
+import SpaceAdmin from '../space/admin/AdminContainer'
+import SpaceSpaceContainer from '../space/space/SpaceContainer'
+import SpaceUser from '../space/reservations/ReservationsContainer'
 
 class ContractWrapper extends Component {
   constructor (props, context) {
-
       super(props);
       this.contractAddr = props.match.params.address;
-      this.site = props.match.path.split('/')[2];
-      this.page = props.match.path.split('/')[3];
-      if (!context.drizzle.contracts[this.props.contractAddr]) {
-        context.drizzle.addContract({
-          contractName: this.contractAddr,
-          web3Contract: new this.props.web3.eth.Contract(
-            this.site === 'spaces' ? Space.abi : Blockspace.abi,
-            this.contractAddr,
-            {from:this.props.account, gas: 2626549, gasPrice: 5})
-        })
-      }
+
   }
 
-  getComponent () {
-    switch(this.page) {
+  componentDidMount () {
+    if (!this.context.drizzle.contracts[this.props.contractAddr]) {
+      this.context.drizzle.addContract({
+        contractName: this.contractAddr,
+        web3Contract: new this.props.web3.eth.Contract(
+          this.props.match.params.site === 'spaces' ? Space.abi : Blockspace.abi,
+          this.contractAddr,
+          {from:this.props.account, gas: 2626549, gasPrice: 5})
+      })
+    }
+  }
+
+  getDailySpaceComponent () {
+    switch(this.props.match.path.split('/')[3]) {
       case 'admin':
-        return <Admin contractAddr={this.contractAddr} />;
+        return <DailyspaceAdmin contractAddr={this.contractAddr} />;
       case 'space':
-        return <SpaceContainer contractAddr={this.contractAddr} />;
+        return <DailyspaceSpaceContainer contractAddr={this.contractAddr} />;
       case 'user':
-        return <User contractAddr={this.contractAddr} />;
+        return <DailyspaceUser contractAddr={this.contractAddr} />;
       default:
-        return <Home contractAddr={this.contractAddr} />
+        return <DailyspaceHome contractAddr={this.contractAddr} />
+    }
+  }
+
+  getSpaceComponent () {
+    switch(this.props.match.path.split('/')[3]) {
+      case 'admin':
+        return <SpaceAdmin contractAddr={this.contractAddr} />;
+      case 'space':
+        return <SpaceSpaceContainer contractAddr={this.contractAddr} />;
+      case 'user':
+        return <SpaceUser contractAddr={this.contractAddr} />;
+      default:
+        return <SpaceHome contractAddr={this.contractAddr} />
     }
   }
 
@@ -49,7 +68,11 @@ class ContractWrapper extends Component {
   render() {
     let comp = 'Loading Contract';
     if (this.context.drizzle.contracts[this.contractAddr]) {
-      comp = this.getComponent();
+      if (this.props.match.params.site === 'spaces') {
+        comp = this.getSpaceComponent();
+      } else {
+        comp = this.getDailySpaceComponent();
+      }
       this.rendered = true;
     }
     return (
@@ -65,7 +88,7 @@ ContractWrapper.contextTypes = {
 // May still need this even with data function to refresh component on updates for this contract.
 const mapStateToProps = state => {
   return {
-    //contractAddr: state.routing.locationBeforeTransitions.pathname.split('/')[1],
+    account: state.accounts[0],
     contracts: state.contracts,
     web3: state.web3Instance.web3Instance
   }
