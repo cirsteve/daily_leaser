@@ -13,20 +13,20 @@ contract Space is Packing, Pausable {
     uint public fee;
 
     uint public startEpoch;//the unix epoch at the time of deployment, used to define the index day for the scheduler
+    uint16 public spaceLimit;
 
     string public layoutHash;//string representing a hash for an image file on ipfs
+
+
+    mapping (uint16 => address) public spaces;
+    mapping (address => uint16[]) public ownerReservations;
+    mapping (address => uint) public credits;
 
     event SpaceReserved(uint16 spaceId, address reservedBy, uint cost);
     event ReservationCancelled(uint16 spaceId, uint refund, address owner, address cancelledBy);
     event CreditClaimed(address claimant, uint amount);
     event RefundIssued(uint amt, address recipient);
     event Withdraw(address to, uint amt);
-
-    uint16 spaceLimit;
-
-    mapping (uint16 => address) public spaces;
-    mapping (address => uint16[]) ownerReservations;
-    mapping (address => uint) credits;
 
     /** @dev instantiates the contract.
       * @param _spaceLimit the number of spaces available
@@ -71,6 +71,7 @@ contract Space is Packing, Pausable {
         require(reserver == msg.sender || owner == msg.sender, "Must have the space reserved to cancel it");
 
         ownerReservations[reserver][_ownerReservationsIdx] = 0;
+        spaces[_spaceId] = 0x0;
         uint refundAmt = fee - depositAmount;
         credits[reserver] = credits[reserver].add(refundAmt);
 
@@ -102,7 +103,7 @@ contract Space is Packing, Pausable {
     }
 
     function getSpaces(uint16 _start, uint16 _end) public view returns (uint16[] currentSpaces, address[] reservedBy) {
-      uint16 spaceCount = _end - _start + 1;
+      uint16 spaceCount = _end - _start;
       uint index = 0;
       currentSpaces = new uint16[](spaceCount);
       reservedBy = new address[](spaceCount);
@@ -122,10 +123,6 @@ contract Space is Packing, Pausable {
       */
     function getReservationsForOwner (address _owner) public view returns (uint16[]) {
       return ownerReservations[_owner];
-    }
-
-    function getCreditBalance () public view returns (uint) {
-      return credits[msg.sender];
     }
 
     function getContractBalance () public view returns (uint){

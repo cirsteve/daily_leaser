@@ -11,19 +11,10 @@ contract Blockspace is Packing, Pausable {
 
     uint public depositAmount = 0;
     uint public dailyFee = 0;
-
     uint public startEpoch;//the unix epoch at the time of deployment, used to define the index day for the scheduler
-
+    uint24 spaceId;
+    uint24[] public spaceIds;
     string public layoutHash;//string representing a hash for an image file on ipfs
-
-    event SpaceCreated(uint id, address owner);
-    event ReservationCreated(uint spaceId, uint16 start, uint16 end, uint amtPaid, uint cost);
-    event ReservationPaid(uint spaceId, uint16 start, uint paidAmt, address payee);
-    event ReservationCancelled(uint spaceId, uint16 start, uint refund, address owner, address cancelledBy);
-    event CreditClaimed(address claimant, uint amount);
-    event RefundIssued(uint amt, address recipient);
-    event Withdraw(address to, uint amt);
-
 
     struct Reservation {
         address owner;
@@ -41,13 +32,17 @@ contract Blockspace is Packing, Pausable {
         mapping(uint16 => bool) availability;//mapping of uint16 representing a date and its availability
     }
 
-    uint24 spaceId;
-
-    uint24[] public spaceIds;
-
     mapping (uint24=> Space) public spaces;
     mapping (address => uint40[]) ownerReservations;
-    mapping (address => uint) credits;
+    mapping (address => uint) public credits;
+
+    event SpaceCreated(uint id, address owner);
+    event ReservationCreated(uint spaceId, uint16 start, uint16 end, uint amtPaid, uint cost);
+    event ReservationPaid(uint spaceId, uint16 start, uint paidAmt, address payee);
+    event ReservationCancelled(uint spaceId, uint16 start, uint refund, address owner, address cancelledBy);
+    event CreditClaimed(address claimant, uint amount);
+    event RefundIssued(uint amt, address recipient);
+    event Withdraw(address to, uint amt);
 
     /** @dev instantiates the contract.
       * @param _startEpoch unix epoch at time contract is deployed.
@@ -248,10 +243,6 @@ contract Blockspace is Packing, Pausable {
           resSpaceIds[i] = resSpaceId;
           starts[i] = reservationStart;
       }
-    }
-
-    function getCreditBalance () public view returns (uint) {
-      return credits[msg.sender];
     }
 
     function getContractBalance () public view returns (uint){
