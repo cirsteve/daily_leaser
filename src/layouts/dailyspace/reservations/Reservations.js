@@ -16,7 +16,7 @@ class Reservations extends Component {
       this.claimCredits = this.claimCredits.bind(this);
       this.startEpochKey = this.methods.startEpoch.cacheCall();
       this.reservationsKey = this.methods.getReservationsForOwner.cacheCall(props.account);
-      this.creditsKey = this.methods.credits.cacheCall();
+      this.creditsKey = this.methods.credits.cacheCall(props.account);
       this.ownerKey = this.methods.owner.cacheCall();
 
   }

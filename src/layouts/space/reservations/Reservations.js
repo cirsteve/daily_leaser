@@ -33,7 +33,7 @@ class Reservations extends Component {
     let credits = 'LoadingCredits';
     if (this.props.contracts[this.contractAddr].getReservationsForOwner[this.reservationsKey]) {
       reservations = this.props.contracts[this.contractAddr].getReservationsForOwner[this.reservationsKey].value
-        .filter(id => id)
+        .filter(id => 1*id)
         .map((id, idx) => <div key={id}>{id} <input type="button" value="Cancel" onClick={this.cancelReservation.bind(this, id, idx)} /></div>);
     }
 

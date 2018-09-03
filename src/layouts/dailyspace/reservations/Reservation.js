@@ -2,6 +2,7 @@
 import { drizzleConnect } from 'drizzle-react'
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
+import { withRouter } from 'react-router-dom'
 
 import { dateFromEpoch } from '../../../util/time'
 
@@ -11,7 +12,8 @@ class Reservation extends Component {
       super(props);
       this.cancelReservation = this.cancelReservation.bind(this, props.spaceId, props.resId, props.arrayIdx);
       this.payReservation = this.payReservation.bind(this, props.spaceId, props.resId);
-      this.methods = context.drizzle.contracts.Blockspace.methods;
+      this.contractAddr = props.match.params.address;
+      this.methods = context.drizzle.contracts[this.contractAddr].methods;
       this.reservationKey = this.methods.getReservations.cacheCall(props.spaceId, props.resId, 1*props.resId+1);
   }
 
@@ -52,8 +54,8 @@ class Reservation extends Component {
 
   render() {
     let reservation;
-    if (this.props.Blockspace.getReservations[this.reservationKey]) {
-        reservation = this.renderReservation(this.props.Blockspace.getReservations[this.reservationKey].value);
+    if (this.props.contracts[this.contractAddr].getReservations[this.reservationKey]) {
+        reservation = this.renderReservation(this.props.contracts[this.contractAddr].getReservations[this.reservationKey].value);
     } else {
         reservation = 'Loading Reservation'
     }
@@ -80,9 +82,9 @@ Reservation.contextTypes = {
 // May still need this even with data function to refresh component on updates for this contract.
 const mapStateToProps = state => {
   return {
-    Blockspace: state.contracts.Blockspace,
+    contracts: state.contracts,
   }
 }
 
 
-export default drizzleConnect(Reservation, mapStateToProps);
+export default withRouter(drizzleConnect(Reservation, mapStateToProps));
