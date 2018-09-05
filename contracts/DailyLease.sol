@@ -1,48 +1,39 @@
 pragma solidity ^0.4.24;
 
-import 'openzeppelin-solidity/contracts/lifecycle/Pausable.sol';
-import 'openzeppelin-solidity/contracts/math/SafeMath.sol';
-
 import './Packing.sol';
+import './Lease.sol';
 
 /** @title Block space. */
-contract Blockspace is Packing, Pausable {
-    using SafeMath for uint;
+contract DailyLease is Packing, Lease {
 
-    uint public depositAmount = 0;
-    uint public dailyFee = 0;
     uint public startEpoch;//the unix epoch at the time of deployment, used to define the index day for the scheduler
-    uint24 spaceId;
-    uint24[] public spaceIds;
-    string public layoutHash;//string representing a hash for an image file on ipfs
+    uint24 public spaceId; //the current id to be applied to next created Space, can also be used to determine what Spaces have already been created
 
     struct Reservation {
         address owner;
-        uint16 start;
-        uint16 end;
+        uint24 start;
+        uint24 end;
         uint amtPaid;
         uint cost;
     }
 
     struct Space {
         uint24 id;
-        string dataHash;
+        uint24 feeIdx;
+        uint24 metaHashIdx;
         bool active;
-        mapping(uint16 => Reservation) reservations;//mapping of uint16 representing the first date of a reservation to a reservation
-        mapping(uint16 => bool) availability;//mapping of uint16 representing a date and its availability
+        mapping(uint24 => Reservation) reservations;//mapping of uint24 representing the first date of a reservation to a reservation
+        mapping(uint24 => bool) availability;//mapping of uint24 representing a date and its availability
     }
 
-    mapping (uint24=> Space) public spaces;
-    mapping (address => uint40[]) ownerReservations;
-    mapping (address => uint) public credits;
+    mapping (uint24 => Space) public spaces;
+    mapping (address => uint48[]) ownerReservations;
 
+    event ReservationCreated(uint spaceId, uint24 start, uint24 end, uint amtPaid, uint cost);
+    event ReservationPaid(uint spaceId, uint24 start, uint paidAmt, address payee);
+    event ReservationCancelled(uint24 spaceId, uint24 start, uint refund, address owner, address cancelledBy);
     event SpaceCreated(uint id, address owner);
-    event ReservationCreated(uint spaceId, uint16 start, uint16 end, uint amtPaid, uint cost);
-    event ReservationPaid(uint spaceId, uint16 start, uint paidAmt, address payee);
-    event ReservationCancelled(uint spaceId, uint16 start, uint refund, address owner, address cancelledBy);
-    event CreditClaimed(address claimant, uint amount);
-    event RefundIssued(uint amt, address recipient);
-    event Withdraw(address to, uint amt);
+
 
     /** @dev instantiates the contract.
       * @param _startEpoch unix epoch at time contract is deployed.
@@ -52,27 +43,38 @@ contract Blockspace is Packing, Pausable {
         owner = _owner;
     }
 
-    function updateDepositAmount(uint _deposit) public onlyOwner {
-        depositAmount = _deposit;
-    }
-
-    function updateDailyFee(uint _fee) public onlyOwner {
-        dailyFee = _fee;
-    }
-
-    function updateLayoutHash (string _hash) public onlyOwner {
-        layoutHash = _hash;
+    /** @dev adds a new Space to the contract state.
+      * @param _feeIdx index of fee in fees.
+      * @param _metaHashIdx index of metaHash in metaHashes.
+      */
+    function createSpace(uint24 _feeIdx, uint24 _metaHashIdx) public onlyOwner whenNotPaused {
+        Space memory space = Space(spaceId, _feeIdx, _metaHashIdx, true);
+        spaces[spaceId] = space;
+        spaceId += 1;
+        emit SpaceCreated(space.id, owner);
     }
 
     /** @dev adds a new Space to the contract state.
-      * @param _dataHash hash of the metadata for the space stored on ipfs.
+      * @param _id id of Space to update.
+      * @param _feeIdx index of fee in fees.
+      * @param _metaHashIdx index of metaHash in metaHashes.
       */
-    function createSpace(string _dataHash) public onlyOwner whenNotPaused {
-        Space memory space = Space(spaceId, _dataHash, true);
-        spaces[spaceId] = space;
-        spaceIds.push(spaceId);
-        spaceId += 1;
-        emit SpaceCreated(space.id, owner);
+    function updateSpace(uint24 _id, uint24 _feeIdx, uint24 _metaHashIdx, bool _active) public onlyOwner whenNotPaused {
+        Space storage space = spaces[_id];
+        space.feeIdx = _feeIdx;
+        space.metaHashIdx = _metaHashIdx;
+        space.active = _active;
+        emit SpaceUpdated(space.id);
+    }
+
+    /** @dev adds a new Space to the contract state.
+      * @param _id index of Space to update
+      * @param _feeIdx index of fee in fees.
+      */
+    function updateSpaceFee(uint24 _id, uint24 _feeIdx) public onlyOwner whenNotPaused {
+        Space storage space = spaces[_id];
+        space.feeIdx = _feeIdx;
+        emit SpaceUpdated(space.id);
     }
 
     /** @dev changes the daily availability for a space.
@@ -81,7 +83,7 @@ contract Blockspace is Packing, Pausable {
       * @param _end last date to be updated.
       * @param isAvailable what value to update availability to.
       */
-    function updateAvailability (uint24 _spaceId, uint16 _start, uint16 _end, bool isAvailable) private {
+    function updateAvailability (uint24 _spaceId, uint24 _start, uint24 _end, bool isAvailable) private {
         while (_start <= _end) {
             require(spaces[_spaceId].availability[_start] == !isAvailable, 'Space is not available');
             spaces[_spaceId].availability[_start] = isAvailable;
@@ -94,15 +96,16 @@ contract Blockspace is Packing, Pausable {
       * @param _start first date of reservation.
       * @param _end last date of reservation.
       */
-    function createReservation(uint24 _spaceId, uint16 _start, uint16 _end) public payable whenNotPaused {
-        require(msg.value >= depositAmount, 'Minumum deposit required');
-        updateAvailability(_spaceId, _start, _end, true);
-        Space storage space = spaces[_spaceId];
+    function createReservation(uint24 _spaceId, uint24 _start, uint24 _end) public payable whenNotPaused {
         require(space.active, 'Space is not active');
-        uint cost = (_end - _start + 1) * dailyFee;
+        Space storage space = spaces[_spaceId];
+        require(msg.value >= ((depositPct/100) * fee) , 'Minumum deposit required');
+        uint fee = fees[space.feeIdx];
+        updateAvailability(_spaceId, _start, _end, true);
+        uint cost = (_end - _start + 1) * fee;
         Reservation memory reservation = Reservation(msg.sender, _start, _end, msg.value, cost);
         space.reservations[_start] = reservation;
-        uint40 reservationId = pack(_start, _spaceId);
+        uint48 reservationId = pack(_start, _spaceId);
         ownerReservations[msg.sender].push(reservationId);
 
         emit ReservationCreated(_spaceId, reservation.start, reservation.end, reservation.amtPaid, reservation.cost);
@@ -112,7 +115,7 @@ contract Blockspace is Packing, Pausable {
       * @param _spaceId id of Space of the reservation.
       * @param _resStart first date of reservation used as index.
       */
-    function payReservation (uint24 _spaceId, uint16 _resStart) public payable whenNotPaused {
+    function payReservation (uint24 _spaceId, uint24 _resStart) public payable whenNotPaused {
         spaces[_spaceId].reservations[_resStart].amtPaid = spaces[_spaceId].reservations[_resStart].amtPaid.add(msg.value);
         emit ReservationPaid(_spaceId, _resStart, msg.value, msg.sender);
     }
@@ -122,14 +125,15 @@ contract Blockspace is Packing, Pausable {
       * @param _resStart first date of reservation used as index.
       * @param _ownerReservationsIdx index of reservation to be cancelled in ownerReservations array.
       */
-    function cancelReservation(uint24 _spaceId, uint16 _resStart, uint _ownerReservationsIdx) public whenNotPaused {
+    function cancelReservation(uint24 _spaceId, uint24 _resStart, uint _ownerReservationsIdx) public whenNotPaused {
         Space storage space = spaces[_spaceId];
         Reservation storage reservation = space.reservations[_resStart];
-        uint40 reservationId = pack(_resStart, _spaceId);
+        uint48 reservationId = pack(_resStart, _spaceId);
         require(reservationId == ownerReservations[reservation.owner][_ownerReservationsIdx]);
         require(reservation.owner == msg.sender || owner == msg.sender);
         ownerReservations[reservation.owner][_ownerReservationsIdx] = 0;
         updateAvailability(_spaceId, reservation.start, reservation.end, false);
+        uint depositAmount = reservation.cost * (depositPct/100);
         uint refundAmt = reservation.amtPaid - depositAmount;
         reservation.amtPaid = depositAmount;
         credits[reservation.owner] = credits[reservation.owner].add(refundAmt);
@@ -162,19 +166,16 @@ contract Blockspace is Packing, Pausable {
         emit RefundIssued(_amt, _recipient);
     }
 
-    function getSpaces() public view returns (uint24[]) {
-        return spaceIds;
-    }
-
     /** @dev get details of a Space
       * @param _id id of Space.
       * @return uint24 space id.
       * @return string hash of meta data stored in ipfs.
       * @return bool if the space is active.
       */
-    function getSpace(uint24 _id) public view returns (uint24, string, bool) {
+    function getSpace(uint24 _id) public view returns (uint24, bool, uint, uint24) {
         Space storage space = spaces[_id];
-        return (space.id, space.dataHash, space.active);
+
+        return (space.id, space.active, fees[space.feeIdx], space.metaHashIdx);
     }
 
     /** @dev get reservations for a Space
@@ -187,12 +188,12 @@ contract Blockspace is Packing, Pausable {
       * @return amts amount paid on reservations.
       * @return costs cost of reservations.
       */
-    function getReservations(uint24 _spaceId, uint16 _start, uint16 _end) public view returns (address[] owners, uint16[] starts, uint16[] ends, uint[] amts, uint[] costs) {
-        uint16 reservationsCount = _end - _start;
-        uint16 index = 0;
+    function getReservations(uint24 _spaceId, uint24 _start, uint24 _end) public view returns (address[] owners, uint24[] starts, uint24[] ends, uint[] amts, uint[] costs) {
+        uint24 reservationsCount = _end - _start;
+        uint24 index = 0;
         owners = new address[](reservationsCount);
-        starts = new uint16[](reservationsCount);
-        ends = new uint16[](reservationsCount);
+        starts = new uint24[](reservationsCount);
+        ends = new uint24[](reservationsCount);
         amts = new uint[](reservationsCount);
         costs = new uint[](reservationsCount);
         for (_start; _start < _end; _start++) {
@@ -215,9 +216,9 @@ contract Blockspace is Packing, Pausable {
       * @param _end end of range of reseavailabilityrvations.
       * @return availability array of bools indicating availability of space.
       */
-    function getAvailability(uint24 _spaceId, uint16 _start, uint16 _end) public view returns (bool[] availability) {
-      uint16 availabilityCount = _end - _start + 1;
-      uint16 index = 0;
+    function getAvailability(uint24 _spaceId, uint24 _start, uint24 _end) public view returns (bool[] availability) {
+      uint24 availabilityCount = _end - _start + 1;
+      uint24 index = 0;
       availability = new bool[](availabilityCount);
       while (_start < _end) {
           availability[index] = spaces[_spaceId].availability[_start];
@@ -233,20 +234,16 @@ contract Blockspace is Packing, Pausable {
       * @return resSpaceIds space ids of reservations.
       * @return starts start dates of reservations.
       */
-    function getReservationsForOwner (address _owner) public view returns (uint24[] resSpaceIds, uint16[] starts) {
-      uint40[] storage reservations = ownerReservations[_owner];
+    function getReservationsForOwner (address _owner) public view returns (uint24[] resSpaceIds, uint24[] starts) {
+      uint48[] storage reservations = ownerReservations[_owner];
       resSpaceIds = new uint24[](reservations.length);
-      starts = new uint16[](reservations.length);
+      starts = new uint24[](reservations.length);
       for (uint i = 0; i < reservations.length; i++) {
-          uint40 reservationId = reservations[i];
-          (uint16 reservationStart, uint24 resSpaceId) = unpack(reservationId);
+          uint48 reservationId = reservations[i];
+          (uint24 reservationStart, uint24 resSpaceId) = unpack(reservationId);
           resSpaceIds[i] = resSpaceId;
           starts[i] = reservationStart;
       }
-    }
-
-    function getContractBalance () public view returns (uint){
-      return address(this).balance;
     }
 
  }

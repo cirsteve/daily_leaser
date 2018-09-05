@@ -3,38 +3,38 @@ pragma solidity ^0.4.24;
 import 'openzeppelin-solidity/contracts/lifecycle/Pausable.sol';
 
 
-import './Blockspace.sol';
-import './Space.sol';
+import './BlockLease.sol';
+import './DailyLease.sol';
 
 /** @title Block space. */
 contract Launcher is Pausable {
-  address[] launchedBlockspaces;
-  address[] launchedSpaces;
+  address[] launchedBlockLeases;
+  address[] launchedDailyLeases;
 
 
-  event BlockspaceLaunched(address addr, address owner);
-  event SpaceLaunched(address addr, address owner);
+  event BlockLeaseLaunched(address addr, address owner);
+  event DailyLeaseLaunched(address addr, address owner);
 
 
-  function launchBlockspace (uint _startEpoch) public {
-    Blockspace newContract = new Blockspace(_startEpoch, msg.sender);
-    launchedBlockspaces.push(newContract);
+  function launchBlockLease (uint24 _spaceCount) public {
+    BlockLease newContract = new BlockLease(_spaceCount, msg.sender);
+    launchedBlockLeases.push(newContract);
 
-    emit BlockspaceLaunched(newContract, msg.sender);
+    emit BlockLeaseLaunched(newContract, msg.sender);
   }
 
-  function launchSpace (uint16 _spaceCount) public {
-    Space newContract = new Space(_spaceCount, msg.sender);
-    launchedSpaces.push(newContract);
+  function launchDailyLease (uint _startEpoch) public {
+    DailyLease newContract = new DailyLease(_startEpoch, msg.sender);
+    launchedDailyLeases.push(newContract);
 
-    emit SpaceLaunched(newContract, msg.sender);
+    emit DailyLeaseLaunched(newContract, msg.sender);
   }
 
-  function getLaunchedBlockspaces () public view returns(address[]) {
-    return launchedBlockspaces;
+  function getLaunchedBlockLeases () public view returns(address[]) {
+    return launchedBlockLeases;
   }
 
-  function getLaunchedSpaces () public view returns(address[]) {
-    return launchedSpaces;
+  function getLaunchedDailyLeases () public view returns(address[]) {
+    return launchedDailyLeases;
   }
 }
