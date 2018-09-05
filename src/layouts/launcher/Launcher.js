@@ -6,6 +6,7 @@ import Loading from 'react-loading'
 
 import { AccountData } from 'drizzle-react-components'
 import Address from '../common/Address'
+import { generateEpoch } from '../../util/time'
 
 class Launcher extends Component {
   constructor (props, context) {
@@ -22,7 +23,7 @@ class Launcher extends Component {
   }
 
   launchBlockspace () {
-    this.context.drizzle.contracts.Launcher.methods.launchBlockspace.cacheSend(new Date().getTime());
+    this.context.drizzle.contracts.Launcher.methods.launchBlockspace.cacheSend(generateEpoch());
   }
 
   launchSpace (count) {

@@ -28,7 +28,7 @@ class Reservations extends Component {
   formatReservations (spaceIds, resIds) {
     let startEpoch = 1*this.props.contracts[this.contractAddr].startEpoch[this.startEpochKey].value;
       return spaceIds.map((sId, i) => [sId, resIds[i], i])
-        //.filter(r => 1*r[0] * r[1])
+        .filter(r => 1*r[0])
         .map((r, i) => <Reservation key={r[0]+r[1]} spaceId={r[0]} resId={r[1]} startEpoch={startEpoch} arrayIdx={i} />);
   }
 

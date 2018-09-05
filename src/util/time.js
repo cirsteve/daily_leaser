@@ -13,3 +13,5 @@ export function daysFromEpoch(epoch, date) {
 export const dateFromEpoch = function(epoch, daysLater) {
     return new Date(new Date(epoch).getTime() + daysLater * MS_PER_DAY);
 }
+
+export const generateEpoch = () => new Date().getTime() - MS_PER_DAY;

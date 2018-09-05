@@ -3,6 +3,7 @@ import { AccountData } from 'drizzle-react-components'
 import PropTypes from 'prop-types'
 import classname from 'classnames'
 
+import { precisionRound } from '../../../util/balances'
 import Loading from 'react-loading'
 import MetaFields from './MetaFields'
 
@@ -10,7 +11,6 @@ import Nav from '../common/Nav'
 
 class Admin extends Component {
   constructor (props, context) {
-      console.log('con', props, context)
       super(props);
       this.contractAddr = props.contractAddr;
       this.contract = context.drizzle.contracts[this.contractAddr].methods;
@@ -27,7 +27,8 @@ class Admin extends Component {
   }
 
   withdraw () {
-      this.context.drizzle.contracts.Blockspace.methods.withdraw.cacheSend(this.state.withdrawAmt);
+      const amount = this.context.drizzle.web3.utils.toWei(this.state.withdrawAmt, 'ether');
+      this.contract.withdraw.cacheSend(amount);
       this.setState(Object.assign({}, this.state, {withdrawAmt: 0}));
   }
 
@@ -37,9 +38,9 @@ class Admin extends Component {
 
   togglePause (isPaused) {
     if (isPaused) {
-      this.context.drizzle.contracts.Blockspace.methods.unpause.cacheSend();
+      this.contract.unpause.cacheSend();
     } else {
-      this.context.drizzle.contracts.Blockspace.methods.pause.cacheSend();
+      this.contract.pause.cacheSend();
     }
   }
 
@@ -48,7 +49,9 @@ class Admin extends Component {
     let contractBalance = 'Loading Contract Balance';
 
     if (this.getContractBalanceKey in this.props.contracts[this.contractAddr].getContractBalance) {
-      contractBalance = this.props.contracts[this.contractAddr].getContractBalance[this.getContractBalanceKey].value;
+      contractBalance = this.context.drizzle.web3.utils.fromWei(
+        this.props.contracts[this.contractAddr].getContractBalance[this.getContractBalanceKey].value,
+        'ether');
     }
 
     const metaClass = classname({
@@ -80,7 +83,7 @@ class Admin extends Component {
             <h4>Active Account</h4>
             <AccountData accountIndex="0" units="ether" precision="3" />
             <div>
-              <h4>Contract Balance: {contractBalance}</h4>
+              <h4>Contract Balance: {precisionRound(contractBalance, 6)} ETH</h4>
               <input type="text" value={this.state.withdrawAmt} onChange={this.updateWithdrawAmt} />
               <input type="button" value="Withdraw" onClick={this.withdraw} />
             </div>
