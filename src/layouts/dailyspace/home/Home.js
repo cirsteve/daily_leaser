@@ -5,35 +5,35 @@ import { AccountData } from 'drizzle-react-components'
 import Space from '../common/Space'
 import Nav from '../common/Nav'
 
+import { getMultihashFromContractResponse } from '../../../util/multiHash'
+import { formatSpacesResponse } from '../../../util/responseHandlers'
+
 class Home extends Component {
   constructor (props, context) {
       super(props);
       this.contractAddr = props.match.params.address;
-      this.contract = context.drizzle.contracts[this.contractAddr].methods;
-      this.getSpacesKey = this.contract.getSpaces.cacheCall();
-      this.layoutHashKey = this.contract.layoutHash.cacheCall();
-      this.ownerKey = this.contract.owner.cacheCall();
+      this.methods = context.contracts[this.contractAddr].methods;
+      this.contract = props.contracts[this.contractAddr];
+      this.getSpacesKey = this.methods.getSpaces.cacheCall();
+      this.layoutHashKey = this.methods.getLayoutHash.cacheCall();
+      this.ownerKey = this.methods.owner.cacheCall();
+      this.metaHashesKey = this.methods.getMetaHashes.cacheCall();
+      this.feesKey = this.methods.getFees.cacheCall();
 
   }
 
-  render() {
-    let spaces, layoutHash, paused;
-    if (!(this.getSpacesKey in this.props.contracts[this.contractAddr].getSpaces)) {
-      spaces = "Loading Spaces";
-    } else {
-      let spaceIds = this.props.contracts[this.contractAddr].getSpaces[this.getSpacesKey].value;
-      spaces = spaceIds.length ? spaceIds.map(id => <Space key={id} id={id} contractAddr={this.contractAddr} />) : 'No spaces created';
+  getRenderValues () {
+    return {
+      spaces: this.contract.getSpaces[this.getSpacesKey] ?
+        formatSpacesResponse(this.contract.getSpaces[this.getSpacesKey].value):
+        'Loading Spaces',
+      layoutHash: this.contract.layoutHash[this.layoutHashKey] ?
+        <img alt="layout file hash" src={`https://ipfs.infura.io/ipfs/${getMultihashFromContractResponse(this.contract.layoutHash[this.layoutHashKey].value)}`} />
     }
+  }
 
-    if (!(this.layoutHashKey in this.props.contracts[this.contractAddr].layoutHash)) {
-      layoutHash = "Loading Layout Hash";
-    } else {
-      if (this.props.contracts[this.contractAddr].layoutHash[this.layoutHashKey]) {
-        layoutHash = <img alt="layout file hash" src={`https://ipfs.infura.io/ipfs/${this.props.contracts[this.contractAddr].layoutHash[this.layoutHashKey].value}`} />;
-      } else {
-        layoutHash = "No layout file set";
-      }
-    }
+  render() {
+    {spaces, layoutHash} = this.getRenderValues();
 
     return (
 
@@ -47,7 +47,7 @@ class Home extends Component {
             <AccountData accountIndex="0" units="ether" precision="3" />
             <div className="pure-u-1-4">
 
-            {spaces}
+            <Grid />
             </div>
 
             <div className="pure-u-3-4 right">

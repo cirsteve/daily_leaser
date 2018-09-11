@@ -4,9 +4,10 @@ import PropTypes from 'prop-types'
 
 class IpfsContent extends Component {
   constructor (props, context) {
-      console.log('ipfs content con', props, context)
       super(props);
-      if (!(this.props.hash in this.props.hashedContent)) this.props.getContent(this.props.hash);
+      if (!(this.props.hash in this.props.hashedContent)) {
+        this.props.getContent(this.props.hash);
+      }
   }
 
 
@@ -34,7 +35,6 @@ IpfsContent.contextTypes = {
 // May still need this even with data function to refresh component on updates for this contract.
 const mapStateToProps = state => {
   return {
-    Blockspace: state.contracts.Blockspace,
     hashedContent: state.space.hashedContent,
   }
 }

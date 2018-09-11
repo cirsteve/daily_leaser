@@ -12,7 +12,7 @@ import Nav from '../common/Nav'
 class Admin extends Component {
   constructor (props, context) {
       super(props);
-      this.contractAddr = props.contractAddr;
+      this.contractAddr = props.match.params.address;
       this.contract = context.drizzle.contracts[this.contractAddr].methods;
       this.pausedKey = this.contract.paused.cacheCall();
       this.getContractBalanceKey = this.contract.getContractBalance.cacheCall();

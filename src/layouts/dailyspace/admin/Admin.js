@@ -2,42 +2,48 @@ import React, { Component } from 'react'
 import { AccountData } from 'drizzle-react-components'
 import PropTypes from 'prop-types'
 import classname from 'classnames'
-
 import Loading from 'react-loading'
-import FieldsForm from './SpaceFields'
-import MetaFields from './MetaFields'
+import MetaHashFields from './MetaHashFields'
+import AdminFields from './AdminFields'
+import UpdateFields from './UpdateFields'
 import Space from '../common/Space'
 import Nav from '../common/Nav'
+import Menu from '../../common/admin/menu'
+
+import { getMultihashFromContractResponse } from '../../../util/multiHash'
 
 class Admin extends Component {
   constructor (props, context) {
-      console.log('con', props, context)
       super(props);
-      this.contractAddr = props.contractAddr;
-      this.contract = context.drizzle.contracts[this.contractAddr].methods;
-      this.getSpacesKey = this.contract.getSpaces.cacheCall();
-      this.pausedKey = this.contract.paused.cacheCall();
-      this.getContractBalanceKey = this.contract.getContractBalance.cacheCall();
-      this.ownerKey = this.contract.owner.cacheCall();
+      this.contractAddr = props.match.params.address;
+      this.contract = this.props.contracts[this.contractAddr];
+      this.methods = context.drizzle.contracts[this.contractAddr].methods;
+
+      this.getSpacesKey = this.methods.getSpaces.cacheCall();
+      this.pausedKey = this.methods.paused.cacheCall();
+      this.getContractBalanceKey = this.methods.getContractBalance.cacheCall();
+      this.ownerKey = this.methods.owner.cacheCall();
+      this.metaHashesKey = this.methods.getMetaHashes.cacheCall();
+      this.fieldsHashKey = this.methods.getFieldsHash.cacheCall();
+      this.feesKey = this.methods.getFees.cacheCall();
 
       this.createSpace = this.createSpace.bind(this);
       this.updateWithdrawAmt = this.updateWithdrawAmt.bind(this);
       this.withdraw = this.withdraw.bind(this);
 
       this.state = {
-          showMeta: true,
+          showing: 'admin',
           withdrawAmt: 0
       };
   }
 
   createSpace (hash) {
-      this.createSpaceKey = this.context.drizzle.contracts[this.props.contractAddr].methods.createSpace.cacheSend(hash);
-      console.log('creating spake key', this.createSpaceKey);
+      this.methods.createSpace.cacheSend(hash);
       this.props.clearCreateHash();
   }
 
   withdraw () {
-      this.context.drizzle.contracts.Blockspace.methods.withdraw.cacheSend(this.state.withdrawAmt);
+      this.methods.withdraw.cacheSend(this.state.withdrawAmt);
       this.setState(Object.assign({}, this.state, {withdrawAmt: 0}));
   }
 
@@ -47,36 +53,40 @@ class Admin extends Component {
 
   togglePause (isPaused) {
     if (isPaused) {
-      this.context.drizzle.contracts.Blockspace.methods.unpause.cacheSend();
+      this.methods.unpause.cacheSend();
     } else {
-      this.context.drizzle.contracts.Blockspace.methods.pause.cacheSend();
+      this.methods.pause.cacheSend();
     }
   }
 
-  showMeta (showMeta) {
-      this.setState({showMeta});
+  show (showing) {
+      this.setState({showing});
   }
 
   render() {
     let spaces, fieldsForm, paused;
     let pendingId = 0;
+    let updateFields = 'Loading Fields';
     let contractBalance = 'Loading Contract Balance';
-    if (!(this.getSpacesKey in this.props.contracts[this.contractAddr].getSpaces)) {
+    if (!(this.getSpacesKey in this.contract.getSpaces)) {
       spaces = "Loading Spaces";
       fieldsForm = "Loading Form Data";
     } else {
-      let spaceIds = this.props.contracts[this.contractAddr].getSpaces[this.getSpacesKey].value;
+      let spaceIds = this.contract.getSpaces[this.getSpacesKey].value;
       pendingId = 1*spaceIds[spaceIds.length -1] + 1;
       spaces = spaceIds.map(id => <Space key={id} id={id} contractAddr={this.contractAddr}/>);
       fieldsForm = <FieldsForm pendingId={pendingId} generateFieldsHash={this.props.generateFieldsHash}/>
     }
 
-    if (this.getContractBalanceKey in this.props.contracts[this.contractAddr].getContractBalance) {
-      contractBalance = this.props.contracts[this.contractAddr].getContractBalance[this.getContractBalanceKey].value;
+    if (this.getContractBalanceKey in this.contract.getContractBalance) {
+      contractBalance = this.contract.getContractBalance[this.getContractBalanceKey].value;
     }
 
-    const fieldsHash = this.props.space.pendingHashGeneration ?
-        'Generating Hash' : this.props.space.toCreate.hash;
+    if (this.fieldsHashKey in this.contract.getFieldsHash) {
+      const currentFieldsHash = getMultihashFromContractResponse(
+        this.contract.getFieldsHash[this.fieldsHashKey])
+      updateFields =  <UpdateFields contractAddr={this.contractAddr}/>
+    }
 
     const createClass = classname({
         'create': true,
@@ -127,36 +137,9 @@ class Admin extends Component {
           </div>
 
           <div className="pure-u-1-1">
-            <div className="menu pure-u-1-3">
-                <div>
-                  {paused}
-                </div>
-                <div className="nav-menu">
-                  <div className={metaButtonClass} onClick={this.showMeta.bind(this, true)}>
-                      Edit Meta Data
-                  </div>
-                  <div className={createButtonClass} onClick={this.showMeta.bind(this, false)}>
-                      Create Space
-                  </div>
-                </div>
-                <div>
-                    {spaces}
-                </div>
-            </div>
-            <div className="content pure-u-3-5">
-                <div className={createClass}>
-                    {fieldsForm}
-                    <p>Hash: {fieldsHash}</p>
-                    {this.props.space.toCreate.hash ?
-                      <input type="button" value="Create Space" onClick={this.createSpace.bind(this, this.props.space.toCreate.hash)} /> :
-                        this.props.contracts[this.contractAddr].synced ?
-                          'Generate Hash to Create Space' :  <Loading type='cubes' color="gray" height={'20%'} width={'20%'} />
-}
-                </div>
-                <div className={metaClass}>
-                    <MetaFields contractAddr={this.contractAddr}/>
-                </div>
-            </div>
+            <Menu />
+
+
           </div>
         </div>
       </main>

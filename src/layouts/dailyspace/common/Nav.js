@@ -25,10 +25,10 @@ class Nav extends Component {
     return (
       <div className="inline-divs">
         <div>
-            <Link to={`/dailyspaces/${this.props.contractAddr}`}><h2 className="title">BlockSpace</h2></Link>
+            <Link to={`/dailylease/${this.props.contractAddr}`}><h2 className="title">BlockSpace</h2></Link>
         </div>
         <div className="navbar navbar-right">
-            {hrefs.map(l => <Link key={l.label} to={`/dailyspaces/${this.props.contractAddr}/${l.href}`}>{l.label}</Link>)}
+            {hrefs.map(l => <Link key={l.label} to={`/dailylease/${this.props.contractAddr}/${l.href}`}>{l.label}</Link>)}
         </div>
       </div>
     )

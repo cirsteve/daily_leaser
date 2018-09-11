@@ -2,8 +2,8 @@ import React, { Component } from 'react'
 import { drizzleConnect } from 'drizzle-react'
 import PropTypes from 'prop-types'
 
-import Blockspace from '../../../build/contracts/Blockspace.json'
-import Space from '../../../build/contracts/Space.json'
+import DailyLease from '../../../build/contracts/DailyLease.json'
+import BlockLease from '../../../build/contracts/BlockLease.json'
 
 
 import DailyspaceHome from '../dailyspace/home/HomeContainer'
@@ -28,7 +28,7 @@ class ContractWrapper extends Component {
       this.context.drizzle.addContract({
         contractName: this.contractAddr,
         web3Contract: new this.props.web3.eth.Contract(
-          this.props.match.params.site === 'spaces' ? Space.abi : Blockspace.abi,
+          this.props.match.params.site === 'blocklease' ? BlockLease.abi : DailyLease.abi,
           this.contractAddr,
           {from:this.props.account, gas: 2626549, gasPrice: 5})
       })
