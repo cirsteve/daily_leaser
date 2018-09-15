@@ -2,33 +2,38 @@ import React, { Component } from 'react'
 import { AccountData } from 'drizzle-react-components'
 import PropTypes from 'prop-types'
 import classname from 'classnames'
-
-import { precisionRound } from '../../../util/balances'
 import Loading from 'react-loading'
-import MetaFields from './MetaFields'
-
 import Nav from '../common/Nav'
+import Menu from '../../common/admin/Menu'
+import Content from '../../common/admin/Content'
+import { withRouter } from 'react-router-dom'
+
+import { getMultihashFromContractResponse } from '../../../util/multiHash'
 
 class Admin extends Component {
   constructor (props, context) {
       super(props);
       this.contractAddr = props.match.params.address;
-      this.contract = context.drizzle.contracts[this.contractAddr].methods;
-      this.pausedKey = this.contract.paused.cacheCall();
-      this.getContractBalanceKey = this.contract.getContractBalance.cacheCall();
-      this.ownerKey = this.contract.owner.cacheCall();
+      this.contract = this.props.contracts[this.contractAddr];
+      this.methods = context.drizzle.contracts[this.contractAddr].methods;
 
+      this.pausedKey = this.methods.paused.cacheCall();
+      this.getContractBalanceKey = this.methods.getContractBalance.cacheCall();
+      this.ownerKey = this.methods.owner.cacheCall();
+
+
+      this.createSpace = this.createSpace.bind(this);
       this.updateWithdrawAmt = this.updateWithdrawAmt.bind(this);
       this.withdraw = this.withdraw.bind(this);
 
       this.state = {
+          showing: 'admin',
           withdrawAmt: 0
       };
   }
 
   withdraw () {
-      const amount = this.context.drizzle.web3.utils.toWei(this.state.withdrawAmt, 'ether');
-      this.contract.withdraw.cacheSend(amount);
+      this.methods.withdraw.cacheSend(this.state.withdrawAmt);
       this.setState(Object.assign({}, this.state, {withdrawAmt: 0}));
   }
 
@@ -38,34 +43,25 @@ class Admin extends Component {
 
   togglePause (isPaused) {
     if (isPaused) {
-      this.contract.unpause.cacheSend();
+      this.methods.unpause.cacheSend();
     } else {
-      this.contract.pause.cacheSend();
+      this.methods.pause.cacheSend();
     }
   }
 
+  show = (showing) => this.setState({showing})
+
+
   render() {
-    let paused;
+    let paused = "Loading Paused";
     let contractBalance = 'Loading Contract Balance';
 
-    if (this.getContractBalanceKey in this.props.contracts[this.contractAddr].getContractBalance) {
-      contractBalance = this.context.drizzle.web3.utils.fromWei(
-        this.props.contracts[this.contractAddr].getContractBalance[this.getContractBalanceKey].value,
-        'ether');
+
+    if (this.getContractBalanceKey in this.contract.getContractBalance) {
+      contractBalance = this.contract.getContractBalance[this.getContractBalanceKey].value;
     }
 
-    const metaClass = classname({
-        'meta': true
-    })
-
-
-    const metaButtonClass = classname({
-        'selected': true
-    })
-
-    if (!(this.pausedKey in this.props.contracts[this.contractAddr].paused)) {
-      paused = "Loading Paused";
-    } else {
+    if (this.pausedKey in this.contract.paused) {
       paused = this.props.contracts[this.contractAddr].paused[this.pausedKey].value ?
         <input type="button" value="Unpause Contract" onClick={this.togglePause.bind(this, true)} /> :
         <input type="button" value="Pause Contract" onClick={this.togglePause.bind(this, false)} /> ;
@@ -83,7 +79,7 @@ class Admin extends Component {
             <h4>Active Account</h4>
             <AccountData accountIndex="0" units="ether" precision="3" />
             <div>
-              <h4>Contract Balance: {precisionRound(contractBalance, 6)} ETH</h4>
+              <h4>Contract Balance: {contractBalance}</h4>
               <input type="text" value={this.state.withdrawAmt} onChange={this.updateWithdrawAmt} />
               <input type="button" value="Withdraw" onClick={this.withdraw} />
             </div>
@@ -95,22 +91,10 @@ class Admin extends Component {
           </div>
 
           <div className="pure-u-1-1">
-            <div className="menu pure-u-1-3">
-                <div>
-                  {paused}
-                </div>
-                <div className="nav-menu">
-                  <div className={metaButtonClass}>
-                      Edit Meta Data
-                  </div>
-                </div>
-
-            </div>
-            <div className="content pure-u-3-5">
-                <div className={metaClass}>
-                    <MetaFields contractAddr={this.contractAddr}/>
-                </div>
-            </div>
+            <Menu changeView={this.show}/>
+            <Content show={this.state.showing}
+              contract={this.contract}
+              contractAddr={this.contractAddr} />
           </div>
         </div>
       </main>
@@ -122,4 +106,4 @@ Admin.contextTypes = {
   drizzle: PropTypes.object
 }
 
-export default Admin
+export default withRouter(Admin)

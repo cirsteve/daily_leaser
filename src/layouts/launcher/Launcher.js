@@ -10,24 +10,22 @@ import { generateEpoch } from '../../util/time'
 
 class Launcher extends Component {
   constructor (props, context) {
-      console.log('con', props, context)
       super(props);
-      this.blockspacesKey = context.drizzle.contracts.Launcher.methods.getLaunchedBlockspaces.cacheCall();
-      this.spacesKey = context.drizzle.contracts.Launcher.methods.getLaunchedSpaces.cacheCall();
-
-      this.launchBlockspace = this.launchBlockspace.bind(this);
+      this.methods = context.drizzle.contracts.Launcher.methods;
+      this.blockspacesKey = this.methods.getLaunchedBlockLeases.cacheCall();
+      this.dailyspacesKey = this.methods.getLaunchedDailyLeases.cacheCall();
 
       this.state = {
         spaceCount: 0
       };
   }
 
-  launchBlockspace () {
-    this.context.drizzle.contracts.Launcher.methods.launchBlockspace.cacheSend(generateEpoch());
+  launchDailyLease = () => {
+    this.methods.launchDailyLease.cacheSend(generateEpoch());
   }
 
-  launchSpace (count) {
-    this.context.drizzle.contracts.Launcher.methods.launchSpace.cacheSend(1*count);
+  launchBlockLease = (count) => {
+    this.methods.launchBlockLease.cacheSend(1*count);
     this.setState({spaceCount:0})
   }
 
@@ -36,19 +34,19 @@ class Launcher extends Component {
     let spaces = 'Loading Spaces';
     let isSynced = this.props.Launcher.synced;
 
-    if (this.props.Launcher.getLaunchedBlockspaces[this.blockspacesKey]) {
-      blockspaces = this.props.Launcher.getLaunchedBlockspaces[this.blockspacesKey].value.map(
-        c=><div key={c}><Link to={`/dailyspaces/${c}`}><Address address={c} chars={5} /></Link></div>);
+    if (this.props.Launcher.getLaunchedBlockLeases[this.blockspacesKey]) {
+      blockspaces = this.props.Launcher.getLaunchedBlockLeases[this.blockspacesKey].value.map(
+        c=><div key={c}><Link to={`/spaces/${c}`}><Address address={c} chars={5} /></Link></div>);
       if (!blockspaces.length) {
-        blockspaces = 'No Blockspaces';
+        blockspaces = 'No Block Spaces';
       }
     }
 
-    if (this.props.Launcher.getLaunchedSpaces[this.spacesKey]) {
-      spaces = this.props.Launcher.getLaunchedSpaces[this.spacesKey].value.map(
-        c=><div key={c}><Link to={`/spaces/${c}`}><Address address={c} chars={5}/></Link></div>);
+    if (this.props.Launcher.getLaunchedDailyLeases[this.dailyspacesKey]) {
+      spaces = this.props.Launcher.getLaunchedDailyLeases[this.dailyspacesKey].value.map(
+        c=><div key={c}><Link to={`/dailyspaces/${c}`}><Address address={c} chars={5}/></Link></div>);
       if (!spaces.length) {
-        spaces = 'No Spaces';
+        spaces = 'No Daily Spaces';
       }
     }
 
@@ -62,20 +60,20 @@ class Launcher extends Component {
 
             <div className="pure-u-1-2">
               {isSynced ?
-                <input type="button" onClick={this.launchBlockspace} value="Launch Blockspace" /> :
+                <input type="button" onClick={this.launchDailyLease} value="Launch Daily Rentals" /> :
                 <Loading type='cubes' color="gray" height={'20%'} width={'20%'} />}
-              <h2>Blockspaces</h2>
+              <h2>Daily Rentals</h2>
 
-              {blockspaces}
+              {spaces}
             </div>
             <div className="pure-u-1-2">
               { isSynced ?
-                <input type="button" onClick={this.launchSpace.bind(this, this.state.spaceCount)} value="Launch Space" /> :
+                <input type="button" onClick={this.launchBlockLease.bind(this, this.state.spaceCount)} value="Launch Block Rentals" /> :
                 <Loading type='cubes' color="gray" height={'20%'} width={'20%'} /> }
               <input type="text" value={this.state.spaceCount} onChange={e => this.setState({spaceCount:e.target.value})} />
-              <h2>Spaces</h2>
+              <h2>Block Rentals</h2>
 
-              {spaces}
+              {blockspaces}
             </div>
 
           </div>

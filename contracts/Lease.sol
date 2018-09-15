@@ -44,6 +44,11 @@ contract Lease is Pausable {
         fees.push(_fee);
     }
 
+    function createMultihash(bytes32 _hash, uint8 _hashFunction, uint8 _size) internal pure returns (Multihash multihash) {
+        multihash = Multihash(_hash, _hashFunction, _size);
+        return multihash;
+    }
+
     function addMetaHash(bytes32 _hash, uint8 _hashFunction, uint8 _size) public onlyOwner {
         Multihash memory multihash = Multihash(_hash, _hashFunction, _size);
         metaHashes.push(multihash);
@@ -109,7 +114,7 @@ contract Lease is Pausable {
       return (fieldsHash.hash, fieldsHash.hashFunction, fieldsHash.size);
     }
 
-    function getfees() public view returns (uint[]) {
+    function getFees() public view returns (uint[]) {
       return fees;
     }
 

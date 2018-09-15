@@ -13,9 +13,9 @@ contract BlockLease is Lease {
 
     struct Space {
         uint24 id;
-        uint24 feeIdx;
-        uint24 metaHashIdx;
+        uint fee;
         address reservedBy;
+        Multihash metaHash;
     }
 
     event ReservationCreated(uint24 spaceId, uint24 start, uint24 end, uint amtPaid, uint cost);
@@ -34,7 +34,7 @@ contract BlockLease is Lease {
       * @param _feeIdx index of fee in fees.
       * @param _metaHashIdx index of metaHash in metaHashes.
       */
-    function updateSpace(uint24 _id, uint24 _feeIdx, uint24 _metaHashIdx) public onlyOwner whenNotPaused {
+    function updateSpace(uint24 _id, uint24 _feeI, uint24 _metaHashIdx) public onlyOwner whenNotPaused {
         Space storage space = spaces[_id];
         space.feeIdx = _feeIdx;
         space.metaHashIdx = _metaHashIdx;

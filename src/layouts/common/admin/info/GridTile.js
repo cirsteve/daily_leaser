@@ -1,10 +1,9 @@
-import React from 'react';
+import React, {Component} from 'react';
 import PropTypes from 'prop-types';
+import { drizzleConnect } from 'drizzle-react'
 import { withStyles } from '@material-ui/core/styles';
 import GridListTile from '@material-ui/core/GridListTile';
-import IconButton from '@material-ui/core/IconButton';
-import InfoIcon from '@material-ui/icons/Info';
-import tileData from './tileData';
+
 
 const styles = theme => ({
   root: {
@@ -30,24 +29,23 @@ class Tile extends Component {
     }
   }
   render () {
-  let ipfsContent = 'Loading info IPFS';
-  if (this.props.hashedContent[this.props.hash]) {
-    const values = this.props.hashedContent[this.props.hash].value;
-    ipfsContent = Object.keys(values).map((k, idx)=> (
-      <div>
-        {k}: {values[k]}
-      </div>
-    ))
+    let ipfsContent = 'Loading info IPFS';
+    if (this.props.hashedContent[this.props.hash]) {
+      const values = this.props.hashedContent[this.props.hash].value;
+      ipfsContent = Object.keys(values).map((k, idx)=> (
+        <div>
+          {k}: {values[k]}
+        </div>
+      ))
+    }
+
+    return (
+        <GridListTile onClick={this.props.showForm}>
+          <h5>ID: {this.props.id}</h5>
+          {ipfsContent}
+        </GridListTile>
+    );
   }
-
-  const { classes } = props;
-
-  return (
-      <GridListTile onClick{this.props.showForm}>
-        <h5>ID: {this.props.id}</h5>
-        {ipfsContent}
-      </GridListTile>
-  );
 }
 
 Tile.propTypes = {
@@ -70,4 +68,4 @@ const dispatchToProps = (dispatch) => {
     };
 }
 
-export default withStyles(styles)drizzleConnect(Tile, mapStateToProps, dispatchToProps);
+export default withStyles(styles)(drizzleConnect(Tile, mapStateToProps, dispatchToProps));

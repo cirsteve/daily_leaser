@@ -1,15 +1,11 @@
 import React, { Component } from 'react'
-import {  ContractData, ContractForm } from 'drizzle-react-components'
 import { drizzleConnect } from 'drizzle-react'
+import { withStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types'
-
+import classNames from 'classnames'
 import Button from '@material-ui/core/Button';
-import IconButton from '@material-ui/core/IconButton';
-import EditIcon from '@material-ui/icons/EditIcon';
-import AddIcon from '@material-ui/icons/AddIcon';
+import AddIcon from '@material-ui/icons/Add';
 
-
-import { getMultihashFromContractResponse, getBytes32FromMultihash } from '../../../util/multiHash'
 
 const styles = theme => ({
   button: {
@@ -29,6 +25,7 @@ class ButtonComponent extends Component {
 
 
   render() {
+    const {classes} = this.props;
 
     return (
 
@@ -43,11 +40,12 @@ class ButtonComponent extends Component {
 
 ButtonComponent.propTypes = {
   feeIdx: PropTypes.number.isRequired,
-  metaIdx: PropTypes.number.isRequired
+  metaIdx: PropTypes.number.isRequired,
+  contractAddr: PropTypes.string.isRequired
 }
 
 ButtonComponent.contextTypes = {
   drizzle: PropTypes.object
 }
 
-export default withStyles(styles)drizzleConnect(ButtonComponent);
+export default withStyles(styles)(drizzleConnect(ButtonComponent));

@@ -9,12 +9,12 @@ import BlockLease from '../../../build/contracts/BlockLease.json'
 import DailyspaceHome from '../dailyspace/home/HomeContainer'
 import DailyspaceAdmin from '../dailyspace/admin/AdminContainer'
 import DailyspaceSpaceContainer from '../dailyspace/space/SpaceContainer'
-import DailyspaceUser from '../dailyspace/reservations/ReservationsContainer'
+import DailyspaceUser from '../dailyspace/user/ReservationsContainer'
 
 import SpaceHome from '../space/home/HomeContainer'
 import SpaceAdmin from '../space/admin/AdminContainer'
 import SpaceSpaceContainer from '../space/space/SpaceContainer'
-import SpaceUser from '../space/reservations/ReservationsContainer'
+import SpaceUser from '../space/user/ReservationsContainer'
 
 class ContractWrapper extends Component {
   constructor (props, context) {

@@ -1,11 +1,12 @@
 import React, { Component } from 'react'
-
+import { drizzleConnect } from 'drizzle-react'
+import PropTypes from 'prop-types';
 import classname from 'classnames'
 import Paper from '@material-ui/core/Paper';
 
-import AdminFields from './AdminFields.js'
-import InfoTypes from './meta/InfoTypes'
-import Spaces from './Spaces.js'
+import Admin from './admin/Admin'
+import InfoTypes from './info/InfoTypes'
+import Spaces from './spaces/Spaces'
 
 import { withStyles } from '@material-ui/core/styles';
 
@@ -22,7 +23,31 @@ const styles = theme => ({
   icon: {},
 });
 
-const Content ({view}) => {
+class Content extends Component {
+  constructor(props, context) {
+    super(props);
+    this.methods = context.drizzle.contracts[props.contractAddr].methods;
+
+    this.keys = {
+      feesKey: this.methods.getFees.cacheCall(),
+      depositKey:this.methods.depositPct.cacheCall(),
+      pausedKey: this.methods.paused.cacheCall(),
+      fieldsHashKey: this.methods.getFieldsHash.cacheCall(),
+      metaHashesKey: this.methods.getMetaHashes.cacheCall(),
+      getSpacesKey: this.methods.getSpaces.cacheCall(),
+      layoutHashKey: this.methods.layoutHash.cacheCall()
+    };
+
+    this.state = {
+      pending: {
+        deposit: null,
+        fee: null
+      }
+    }
+  }
+
+  render () {
+  const {view, contract, contractAddr} = this.props;
   const adminClass = classname({
     hidden: view !== 'admin'
   });
@@ -38,15 +63,20 @@ const Content ({view}) => {
   return (
     <Paper>
       <div className={adminClass}>
-        <AdminFields />
+        <Admin contract={contract} contractAddr={contractAddr} {...this.keys} />
       </div>
       <div className={infoClass} >
-        <InfoTypes />
+        <InfoTypes contract={contract} contractAddr={contractAddr} {...this.keys} />
       </div>
       <div className={spacesClass}>
-        <Spaces />
+        <Spaces contract={contract} contractAddr={contractAddr} {...this.keys} />
       </div>
     </Paper>)
   };
+}
 
-export default withStyles(styles)(Content);
+Content.contextTypes = {
+  drizzle: PropTypes.object
+}
+
+export default withStyles(styles)(drizzleConnect(Content));

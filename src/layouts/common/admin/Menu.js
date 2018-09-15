@@ -1,5 +1,5 @@
-import React, { Component } from 'react'
-
+import React from 'react'
+import PropTypes from 'prop-types';
 import MenuList from '@material-ui/core/MenuList';
 import MenuItem from '@material-ui/core/MenuItem';
 import Paper from '@material-ui/core/Paper';
@@ -9,7 +9,6 @@ import ListItemText from '@material-ui/core/ListItemText';
 import InboxIcon from '@material-ui/icons/MoveToInbox';
 import DraftsIcon from '@material-ui/icons/Drafts';
 import SendIcon from '@material-ui/icons/Send';
-import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   menuItem: {
@@ -24,7 +23,7 @@ const styles = theme => ({
   icon: {},
 });
 
-const Menu ({classes, changeView}) => (
+const Menu = ({classes, changeView}) => (
   <Paper>
       <MenuList>
         <MenuItem onClick={changeView.bind(this, 'admin')} className={classes.menuItem}>

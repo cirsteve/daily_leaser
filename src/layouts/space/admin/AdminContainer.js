@@ -6,16 +6,8 @@ const mapStateToProps = state => {
   return {
     account: state.accounts[0],
     contracts: state.contracts,
-    space: state.space,
+    ipfsError: state.ipfs.error,
   }
 }
 
-const dispatchToProps = (dispatch) => {
-    return {
-        generateFieldsHash: fields => dispatch({type: 'FIELDS_HASH_REQUESTED', payload: {fields}}),
-        getFields: hash => dispatch({type: 'GET_FIELDS_REQUESTED', payload: {hash}}),
-        clearCreateHash: () => dispatch({type: 'CLEAR_CREATE_HASH'})
-    };
-}
-
-export default drizzleConnect(Admin, mapStateToProps, dispatchToProps);
+export default drizzleConnect(Admin, mapStateToProps);

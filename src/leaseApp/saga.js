@@ -2,11 +2,13 @@ import { call, put, takeEvery, all } from 'redux-saga/effects'
 import ipfs from '../ipfs';
 
 function* ipfsUpload(action) {
+  console.log('ipfs uploading', action);
    try {
       const hash = yield call(ipfs.add, Buffer.from(action.payload.upload, 'utf-8'));
 
-      yield put({type: "IPFS_UPLOAD_SUCCEEDED", payload:{fields: JSON.parse(action.payload.upload), hash: hash[0].path}});
+      yield put({type: "IPFS_UPLOAD_SUCCEEDED", payload:{hash: hash[0].path}});
    } catch (e) {
+     console.log('ipfs failure', e.message);
       yield put({type: "IPFS_UPLOAD_FAILED", message: e.message});
    }
 }

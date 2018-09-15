@@ -15,11 +15,14 @@ export default class FormDialog extends Component {
           onClose={this.props.handleClose}
           aria-labelledby="form-dialog-title"
         >
-          <DialogTitle id="form-dialog-title">Subscribe</DialogTitle>
+          <DialogTitle id="form-dialog-title">{this.props.title}</DialogTitle>
           <DialogContent>
             {this.props.content}
           </DialogContent>
           <DialogActions>
+            <Button onClick={this.props.submit} color="primary">
+              {this.props.submitText}
+            </Button>
             <Button onClick={this.props.handleClose} color="primary">
               Cancel
             </Button>

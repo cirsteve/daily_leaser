@@ -2,36 +2,52 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { AccountData } from 'drizzle-react-components'
 
-import Spaces from './Spaces'
+import Grid from '../../common/Grid'
+import SpaceTile from '../../common/spaces/SpaceTile'
 import Nav from '../common/Nav'
+
+import { getMultihashFromContractResponse } from '../../../util/multiHash'
+import { formatSpacesResponse } from '../../../util/responseHandlers'
 
 class Home extends Component {
   constructor (props, context) {
       super(props);
       this.contractAddr = props.match.params.address;
-      this.contract = context.drizzle.contracts[this.contractAddr].methods;
-      this.layoutHashKey = this.contract.layoutHash.cacheCall();
-      this.ownerKey = this.contract.owner.cacheCall();
-      this.spaceLimitKey = this.contract.spaceLimit.cacheCall();
+      this.methods = context.drizzle.contracts[this.contractAddr].methods;
+      this.contract = props.contracts[this.contractAddr];
+
+      this.getSpacesKey = this.methods.getSpaces.cacheCall();
+      this.layoutHashKey = this.methods.getLayoutHash.cacheCall();
+      this.ownerKey = this.methods.owner.cacheCall();
+      this.metaHashesKey = this.methods.getMetaHashes.cacheCall();
+      this.feesKey = this.methods.getFees.cacheCall();
+
+  }
+
+  getRenderValues () {
+    return {
+      spaces: this.contract.getSpaces[this.getSpacesKey] ?
+        formatSpacesResponse(this.contract.getSpaces[this.getSpacesKey].value):
+        null,
+      layoutHash: this.contract.layoutHash[this.layoutHashKey] ?
+        <img alt="layout file hash"
+          src={`https://ipfs.infura.io/ipfs/${getMultihashFromContractResponse(this.contract.layoutHash[this.layoutHashKey].value)}`} /> :
+        null,
+      fees: this.contract.getFees[this.feesKey] ?
+        this.contract.getFees[this.feesKey].value :
+        null,
+      metaHashes: this.contract.getMetaHashes[this.metaHashesKey] ?
+        this.contract.getMetaHashes[this.metaHashesKey].value :
+        null
+    }
   }
 
   render() {
-    let spaces = 'Loading Spaces';
-    let layoutHash = 'Loading Layout Hash';
-    if (this.spaceLimitKey in this.props.contracts[this.contractAddr].spaceLimit) {
-      let spaceLimit = this.props.contracts[this.contractAddr].spaceLimit[this.spaceLimitKey].value;
-      spaces = <Spaces spaceLimit={spaceLimit} contractAddr={this.contractAddr} />;
+    let {spaces, layoutHash, fees, metaHashes} = this.getRenderValues();
+    let items = 'Loading Spaces';
+    if (spaces && fees && metaHashes) {
+      items = spaces.map((s, idx) => <SpaceTile key={idx} fee={fees[s.feeIdx]} metaHash={metaHashes[s.metaHashesIdx]} />)
     }
-
-    if (this.layoutHashKey in this.props.contracts[this.contractAddr].layoutHash) {
-      if (this.props.contracts[this.contractAddr].layoutHash[this.layoutHashKey]) {
-        layoutHash = <img alt="layout file hash" src={`https://ipfs.infura.io/ipfs/${this.props.contracts[this.contractAddr].layoutHash[this.layoutHashKey].value}`} />;
-      } else {
-        layoutHash = "No layout file set";
-      }
-    }
-
-
 
     return (
 
@@ -42,10 +58,9 @@ class Home extends Component {
           <Nav contractAddr={this.contractAddr} ownerKey={this.ownerKey}/>
             <h2><a href="/user">Account Details</a></h2>
             <AccountData accountIndex="0" units="ether" precision="3" />
-
             <div className="pure-u-1-4">
 
-            {spaces}
+            <Grid items={items} />
             </div>
 
             <div className="pure-u-3-4 right">

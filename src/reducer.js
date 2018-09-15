@@ -1,16 +1,16 @@
 import { combineReducers } from 'redux'
 import { routerReducer } from 'react-router-redux'
 import { drizzleReducers } from 'drizzle'
-import dailyspaceReducer from './dailyspaceApp/reducer'
-import spaceReducer from './spaceApp/reducer'
+import ipfsReducer from './leaseApp/reducers/ipfs'
+import leaseReducer from './leaseApp/reducers/lease'
 import web3Reducer from './util/web3/web3Reducer'
 
 
 
 const reducer = combineReducers({
   routing: routerReducer,
-  space: spaceReducer,
-  dailyspace: dailyspaceReducer,
+  lease: leaseReducer,
+  ipfs: ipfsReducer,
   web3Instance:  web3Reducer,
   ...drizzleReducers
 })

@@ -4,7 +4,6 @@ import { withStyles } from '@material-ui/core/styles';
 import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
 import ListSubheader from '@material-ui/core/ListSubheader';
-import Tile from '../../spaces/SpaceTile';
 
 const styles = theme => ({
   root: {
@@ -23,16 +22,15 @@ const styles = theme => ({
   },
 });
 
-function Grid({classes, spaces}) {
+function Grid({classes, items, title}) {
 
   return (
     <div className={classes.root}>
       <GridList cellHeight={180} className={classes.gridList}>
         <GridListTile key="Subheader" cols={2} style={{ height: 'auto' }}>
-          <ListSubheader component="div"><h4>Spaces</h4>Add Space</ListSubheader>
+          <ListSubheader component="div"><h4>{title}</h4></ListSubheader>
         </GridListTile>
-        {spaces.map((s,idx) =>
-          <Tile key={idx} id={idx} hash={this.props.metaHashes[s.hash]} fee={this.props.fees[s.fee]} showForm={this.props.showForm.bind(this, idx)} />)}
+        {items}
       </GridList>
     </div>
   );
@@ -40,9 +38,7 @@ function Grid({classes, spaces}) {
 
 Grid.propTypes = {
   classes: PropTypes.object.isRequired,
-  showForm: PropTypes.func.isRequired,
-  fees: PropTypes.array.isRequired,
-  metaHashes: PropTypes.array.isRequired
+  //items: PropTypes.array
 };
 
 export default withStyles(styles)(Grid);

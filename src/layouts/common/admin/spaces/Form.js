@@ -1,8 +1,7 @@
 import React, { Component } from 'react'
-import {  ContractData, ContractForm } from 'drizzle-react-components'
 import { drizzleConnect } from 'drizzle-react'
 import PropTypes from 'prop-types'
-
+import { withStyles } from '@material-ui/core/styles';
 import Select from '../../Select'
 import AddButton from './AddButton'
 import UpdateButton from './UpdateButton'
@@ -38,12 +37,12 @@ class Form extends Component {
   }
 
   render() {
-
+    const {classes} = this.props;
     return (
       <form className={classes.root} autoComplete="off">
         <Select />
         <Select />
-        {this.props.isAdd ? <AddButton /> : <UpdateButton />}
+        {this.props.isAdd ? <AddButton {...this.props} /> : <UpdateButton {...this.props} />}
       </form>
 
     )
@@ -51,10 +50,11 @@ class Form extends Component {
 }
 
 Form.propTypes = {
-  metaHashes: PropTypes.array,
+  metaHashes: PropTypes.array.isRequired,
   fees: PropTypes.array.isRequired,
+  idx: PropTypes.number.isRequired,
   isAdd: PropTypes.bool.isRequired
 }
 
 
-export default withStyles(styles)drizzleConnect(Form, mapStateToProps, dispatchToProps);
+export default withStyles(styles)(drizzleConnect(Form));

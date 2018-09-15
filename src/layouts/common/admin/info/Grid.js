@@ -1,9 +1,10 @@
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
+import ListSubheader from '@material-ui/core/ListSubheader';
+import Tile from './GridTile';
 
 const styles = theme => ({
   root: {
@@ -28,9 +29,9 @@ function Grid({classes, metaHashes}) {
     <div className={classes.root}>
       <GridList cellHeight={180} className={classes.gridList}>
         <GridListTile key="Subheader" cols={2} style={{ height: 'auto' }}>
-          <ListSubheader component="div"><h4>Info Types<h4>Add New Info Type</ListSubheader>
+          <ListSubheader component="div"><h4>Info Types</h4>Add New Info Type</ListSubheader>
         </GridListTile>
-        {metaHashes.map((h,idx) => <Tile key={idx} id={idx} hash={h} showForm={this.props.showForm.bind(this, idx)} />)}
+        {metaHashes.map((h,idx) => <Tile key={idx} id={idx} hash={h} showForm={this.props.openForm.bind(this, idx)} />)}
       </GridList>
     </div>
   );
@@ -38,7 +39,7 @@ function Grid({classes, metaHashes}) {
 
 Grid.propTypes = {
   classes: PropTypes.object.isRequired,
-  showForm: PropTypes.func.isRequired
+  openForm: PropTypes.func.isRequired
 };
 
 export default withStyles(styles)(Grid);

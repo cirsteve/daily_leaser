@@ -12,7 +12,7 @@ const drizzleOptions = {
     Launcher
   ],
   events: {
-    Launcher: ['BlockspaceLaunched', 'SpaceLaunched'],
+    Launcher: ['BlockLeaseLaunched', 'DailyLeaseLaunched'],
   },
   polls: {
     accounts: 1500

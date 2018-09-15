@@ -1,10 +1,10 @@
 import React, { Component } from 'react'
-import {  ContractData, ContractForm } from 'drizzle-react-components'
 import { drizzleConnect } from 'drizzle-react'
 import PropTypes from 'prop-types'
-
+import classNames from 'classnames'
+import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
-import EditIcon from '@material-ui/icons/EditIcon';
+import EditIcon from '@material-ui/icons/Edit';
 
 const styles = theme => ({
   button: {
@@ -19,10 +19,11 @@ class ButtonComponent extends Component {
 
   submit() {
     this.context.drizzle.contracts[this.props.contractAddr].methods
-      .updateSpace.cacheSend(this.props.feeIdx, this.props.metaIdx);
+      .updateSpace.cacheSend(this.props.id, this.props.feeIdx, this.props.metaIdx);
   }
 
   render() {
+    const {classes} = this.props;
     return (
       <Button variant="contained" size="small" className={classes.button} disabled={this.props.disabled}>
         <EditIcon className={classNames(classes.leftIcon, classes.iconSmall)} />
@@ -35,11 +36,12 @@ class ButtonComponent extends Component {
 ButtonComponent.propTypes = {
   feeIdx: PropTypes.number.isRequired,
   metaIdx: PropTypes.number.isRequired,
-  disabled: PropTypes.bool.is
+  id: PropTypes.number.isRequired,
+  disabled: PropTypes.bool.isRequired
 }
 
 ButtonComponent.contextTypes = {
   drizzle: PropTypes.object
 }
 
-export default withStyles(styles)drizzleConnect(ButtonComponent);
+export default withStyles(styles)(drizzleConnect(ButtonComponent));

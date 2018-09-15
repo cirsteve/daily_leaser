@@ -15,6 +15,7 @@ contract DailyLease is Packing, Lease {
         uint24 end;
         uint amtPaid;
         uint cost;
+        Multihash metaHash;
     }
 
     struct Space {
@@ -176,6 +177,23 @@ contract DailyLease is Packing, Lease {
         Space storage space = spaces[_id];
 
         return (space.id, space.active, fees[space.feeIdx], space.metaHashIdx);
+    }
+
+    function getSpaces() public view returns (uint24[] currentSpaces, address[] reservedBy, uint[] spaceFees, uint24[] spaceMetaHashes) {
+      currentSpaces = new uint24[](spaceId);
+      reservedBy = new address[](spaceId);
+      spaceFees = new uint[](spaceId);
+      spaceMetaHashes = new uint24[](spaceId);
+      for (uint i = 0; i < spaceId; i++) {
+          Space storage space = spaces[i];
+          currentSpaces[i] = space.id;
+          reservedBy[i] = space.reservedBy;
+          spaceFees[i] = fees[space.feeIdx];
+          spaceMetaHashes[i] = space.metaHashIdx;
+
+      }
+
+      return (currentSpaces, reservedBy, spaceFees, spaceMetaHashes );
     }
 
     /** @dev get reservations for a Space

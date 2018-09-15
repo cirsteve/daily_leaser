@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
-import Grid from './MetaTypesGrid'
-import Form from './MetaTypesForm'
+import { withStyles } from '@material-ui/core/styles';
+import Grid from './Grid'
+import Form from './Form'
 import Dialog from '../../Dialog'
 
 const styles = theme => ({
@@ -24,6 +24,7 @@ const styles = theme => ({
 
 class Spaces extends Component {
   constructor (props) {
+    super(props);
     this.state = {showForm: false, id:0};
   }
 
@@ -51,22 +52,21 @@ class Spaces extends Component {
   }
 
   render () {
-    {metaHashes, fees, spaces, form} = this.getRenderValues();
+    let {metaHashes, fees, spaces, form} = this.getRenderValues();
 
 
-    if (fees && metahashes && spaces) {
+    if (fees && metaHashes && spaces) {
       form = <Form
-        value={spaces[this.state.id]}
         metaHashes={metaHashes}
         fees={fees}
         contractAddr={this.contractAddr}
         id={this.state.id}
-        isAdd={this.state.id === metahashes.length} />
+        isAdd={this.state.id === metaHashes.length} />
     }
     return (
       <div>
         {metaHashes && fees && spaces ?
-          <Grid metaHashes={metaHashes} fees={fees} spaces={spaces} showForm={this.showForm}/> : 'Loading Spaces'}
+          <Grid metaHashes={metaHashes} fees={fees} spaces={spaces} showForm={this.showForm} /> : 'Loading Spaces'}
         {form ?
           <Dialog
             content={form}
@@ -80,13 +80,11 @@ class Spaces extends Component {
 
 Spaces.propTypes = {
   classes: PropTypes.object.isRequired,
-  metaTypes: PropTypes.array.isRequired,
   contract: PropTypes.object.isRequired,
+  contractAddr: PropTypes.string.isRequired,
   fieldsHashKey: PropTypes.string.isRequired,
   metaHashesKey: PropTypes.string.isRequired,
-  getSpacesKey: PropTypes.string.isRequired,
-  contractAddr: PropTypes.string.isRequired
-
+  getSpacesKey: PropTypes.string.isRequired
 };
 
 export default withStyles(styles)(Spaces);
